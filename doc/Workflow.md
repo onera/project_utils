@@ -15,3 +15,24 @@ API stab
 Size / maintainers
 
 A way to 
+
+
+## Open issues ##
+With
+B -> A
+C -> A
+C -> B
+the project tree is
+C/
+|--C content
+|--external/
+   |--A/
+   |  |--A content
+   |--B/
+      |--B content
+      |--external
+         /* EMPTY */
+C/external/B/external is not populated because we already have C/external/A, so C/external/B/external/A would be redundant.
+This is what we want. The problem is that when updating A and B accordingly, B should see that its dependency should also be updated. But this is not the case.
+From the C perspective, it does not matter since everything is in sync from the top-level working tree perspective.
+But if we are to build the updated B separatly, then it will refer to the un-updated A (because we never told the B git that A git has been updated), which is wrong
