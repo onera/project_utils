@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 macro(append_to_target_dependency_list target)
   set(dependency ${ARGN})
   list(APPEND ${target}_DEPENDENCIES_FIND_PACKAGE_STRING "find_package(${dependency})\n")
+  list(APPEND ${target}_DEPENDENCIES_STRING "\"${dependency}\",")
 endmacro()
 
 # target_add_dependency
