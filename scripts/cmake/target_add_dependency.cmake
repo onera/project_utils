@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
+# create global variables storing a target dependencies
+# these variables are useful later when installing the target
 macro(append_to_target_dependency_list target)
   set(dependency ${ARGN})
   list(APPEND ${target}_DEPENDENCIES_FIND_PACKAGE_STRING "find_package(${dependency})\n")
