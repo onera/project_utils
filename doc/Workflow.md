@@ -22,7 +22,7 @@ A way to
 1. Not taking into account changes to a submodule
 TL;DR: 
 
-Let's say you modify a file "file-1" in a git repository "top-level" and a file "file-2" on one of its submodules "sub-mod-A". Then commiting on the repository "top-level" (with either `git add -A; git commit -m "message"` or `git commit -am "message"` will not take the submodule "file-2" into account, it will not commit with it "file-1" to "top-level", nor create a commit with "file-2" on "sub-mod-A". You first need to commit "file-2" to "sub-mod-A", then commit everything to "top-level", so that "top-level" does two thing: commit "file-1", and commit the new commit of "sub-mod-A" to which its new commit will refer to.
+Let's say you modify a file "file-1" in a git repository "top-level" and a file "file-2" on one of its submodules "sub-A". Then commiting on the repository "top-level" (with either `git add -A; git commit -m "message"` or `git commit -am "message"` will not take the submodule "file-2" into account, it will not commit with it "file-1" to "top-level", nor create a commit with "file-2" on "sub-A". You first need to commit "file-2" to "sub-A", then commit everything to "top-level", so that "top-level" does two thing: commit "file-1", and commit the new commit of "sub-A" to which its new commit will refer to.
 
 
 
