@@ -13,6 +13,40 @@ cd my_project
 git submodule update --init # init: tell git to track submodules, update: ~= for each submodule s, git clone s
 git status # to ensure all is OK
 
+# git pull with submodules
+git pull # pull the container
+git submodule sync # update submodules remote location
+git submodule update # pull the submodules
+
+
+#git config --global alias.spull '!git pull && git submodule sync && git submodule update --init'
+git config --global alias.spull '__git_spull() { git pull "$@" && git submodule sync && git submodule update --init; }; __git_spull'
+
+##! /bin/bash
+#git pull "$@" &&
+#  git submodule sync&&
+#  git submodule update --init
+
+git push --recurse-submodules=on-demand
+git config --global alias.spush 'push --recurse-submodules=on-demand'
+
+
+# git commit in containing repo c
+
+#   updates_by_submod = {sub_mod : []}
+#   for each s : submodule of c
+#     if commit updates s to commit_s_i
+#       for each t : submodule of c
+#         if t contains s as a submodule
+#           updates_by_submod[t] += [s,commit_s_i]
+
+#   for each t : submodule of c
+#       make a commit on the branch of t used by c
+#       that updates the branche according to updates_by_submod[t]
+
+#   for each submod : updates_by_submod.keys()
+#     git add submod
+#   git commit
 
 
 
@@ -30,7 +64,8 @@ git submodule update --init
 # then sub-sub-C MUST ALSE BE a submodule of A.
 # hence we do not want to confuse the build system, or ourself as a developper, into having sub-sub-C checked out more than once
 
-## troubleshooting ##
+
+## Troubleshooting ##
 
 # if after `git submodule update`
 # with `git status` you see 
@@ -51,3 +86,39 @@ git status
 # The working tree is not there
 # So simply check it out
 git checkout my_branch .  # the dot tells git you are not going to another branch, only copying the files to the working tree
+
+
+## Cheat sheet ##
+git config --global status.submoduleSummary true
+git config --global diff.submodule log
+
+git config --global alias.sclone '__git_sclone() { git clone "$@" && git --git-dir=`pwd`/"$@" submodule update --init; }; __git_sclone'
+
+git config --global alias.fetchall '__git_fetchall() { git fetch --recurse-submodules=yes "$@"; }; __git_fetchall'
+
+git config --global alias.spull '__git_spull() { git pull "$@" && git submodule update --init; }; __git_spull'
+
+git config --global alias.spush '__git_spush() { git push --recurse-submodules=on-demand "$@"; }; __git_spush'
+
+
+__basename `git rev-parse --show-toplevel`
+
+#! /bin/bash
+__git_scommit() {
+  declare -A updates_by_submod
+  for f in 
+#   updates_by_submod = {sub_mod : []}
+#   for each s : submodule of c
+#     if commit updates s to commit_s_i
+#       for each t : submodule of c
+#         if t contains s as a submodule
+#           updates_by_submod[t] += [s,commit_s_i]
+
+#   for each t : submodule of c
+#       make a commit on the branch of t used by c
+#       that updates the branche according to updates_by_submod[t]
+
+#   for each submod : updates_by_submod.keys()
+#     git add submod
+#   git commit
+}

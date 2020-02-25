@@ -1,9 +1,12 @@
 function(write_useful_install_variables target_name)
   # 1. write variables to a file
-  get_target_property(compile_defs ${target_name} INTERFACE_COMPILE_DEFINITIONS)
   string(REPLACE ";" " " DEPENDENCIES_STRING "${${target_name}_DEPENDENCIES_STRING}")
   string(REPLACE ";" " " THIRDPARTY_DEPENDENCIES_STRING "${${target_name}_THIRDPARTY_DEPENDENCIES_STRING}")
-  string(REPLACE ";" "," COMPILE_DEFS_STRING "${COMPILE_DEFS}")
+  get_target_property(compile_defs ${target_name} INTERFACE_COMPILE_DEFINITIONS)
+  if(${compile_defs} MATCHES "NOTFOUND")
+    set(compile_defs "")
+  endif()
+  string(REPLACE ";" "," COMPILE_DEFS_STRING "${compile_defs}")
   set(cmake_vars_string "{\n\
     \"PROJECT_NAME\" : \"${target_name}\",\n\
     \"CMAKE_INSTALL_PREFIX\" : \"${CMAKE_INSTALL_PREFIX}\",\n\
@@ -17,7 +20,16 @@ function(write_useful_install_variables target_name)
   
   # 2. let an external python script do the parsing
   #    it writes two files: source_${target_name}.sh and a config_${target_name}.ini
-  execute_process(COMMAND python3 ${CMAKE_SOURCE_DIR}/external/project_utils/scripts/cmake/create_env_files.py ${CMAKE_CURRENT_BINARY_DIR}/${config_file_name})
+  #set(cmd "python ${CMAKE_SOURCE_DIR}/external/project_utils/scripts/cmake/create_env_files.py ${CMAKE_CURRENT_BINARY_DIR}/${config_file_name}")
+  find_package(Python 3 REQUIRED)
+  execute_process(
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/external/project_utils/scripts/cmake/create_env_files.py ${CMAKE_CURRENT_BINARY_DIR}/${config_file_name}
+    RESULT_VARIABLE rv 
+  )
+  if(NOT ${rv} EQUAL "0")
+      message(FATAL_ERROR "in write_useful_install_variables: process returned \"${rv}\"")
+  endif()
+
   # 3. install the resulting files
   install(
     FILES
