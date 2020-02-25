@@ -1,7 +1,7 @@
 # Description #
 We present here a way to organize git repositories for developping multiple projects sharing common libraries.
 To give an more concrete idea of related libraries and projects, here is an example of dependencies between projects ![dependency graph](./project_dep_graph.svg).
-The projects we are talking about are fine-grained: a few peoples working on small libraries. We envision 2/3 people working on the same library at the same time, and 1 person working in several libraries at the same time.
+The projects we are talking about are *fine-grained*: a few peoples working on small libraries. We envision 2/3 people working on the same library at the same time, and 1 person working in several libraries at the same time.
 
 
 # Requirements #
@@ -9,7 +9,7 @@ The projects we are talking about are fine-grained: a few peoples working on sma
 2. Be able to easily create a library as we see fit, or extract a factored piece of code into a library. A well-written library has a well-defined role, a weak coupling with its dependencies, and no coupling at all to the other project that depend on it. Thus it is easier to learn, share, maintain and test.
 3. Each library has its own git repository and can be built by itself. It simplifies testing. Furthermore, it also simplify learning it and ensures their is no hidden coupling with a "container" repository.
 4. Possible to develop collabolatively on several project and library repositories at the same time.
-5. Dependencies between repositories (both library and applications) should be explicit, but lightweight. It means that when working on several repositories, we do not want to manually create version numbers for each dependency repository, and then tell the dependent repository which version number it should use. It would be perfectly fine at a higher level of granularity, but here we are at a very fine level and versionning should be commit-based: "libA at commit 5f25414f works with libB at commit f16af47b", that's all: we do not ensure any further compatiblity.
+5. Dependencies between repositories (both library and applications) should be *explicit, but lightweight*. It means that when working on several repositories, we do not want to manually create version numbers for each dependency repository, and then tell the dependent repository which version number it should use. It would be perfectly fine at a higher level of granularity, but here we are at a very fine level and versionning should be commit-based: "libA at commit 5f25414f works with libB at commit f16af47b", that's all: we do not ensure any further compatiblity.
 6. Possibility to depend on libraries not integrated within this framework of interdependent git repositories. The main driving factor for using git-based dependency management comes from the fact that we want both separate libraries and develop them seamlessly when working on a dependent project. It may feels unpractical to use commit-based dependencies if the library is too big, or developped by another team, or developpers are not working on both at the same time. In this case it, version-based dependencies and release should be the way to go.
 
 ## Non-requirements ##
@@ -49,15 +49,31 @@ Use of Cmake (lack of a better alternative as of 2020). We at least mandate the 
 
 ## Dependency management ##
 There are three kinds of dependencies:
-1. Project-related dependencies
-2. Other projects dependencies (as per requirement 6.)
-3. System dependencies
-The latter two are taken care of through Cmake and proper versionning. Regarding project-related dependencies, they must be managed at the commit level but we are not aware of git-based (or other version-control system) dependency managers. Our compromise is to use git submodules with a diciplined approach. In our ![example of library dependencies](./project_dep_graph.svg), dependencies form a direct acyclic graph of depth 4. Note that several aspects of the dependency graph make it complicated:
-1. It is 4 levels deep, which mean that dependencies (example: project_1 depends on app_lib_0) have themselves dependencies (app_lib_0 depends on base_lib)
-2. It is NOT a tree (example project_2 depends on app_lib_0 and app_lib_1, and both depend on base_lib). Which raises two questions:
-  1. What should we do if app_lib_0 and app_lib_1 depend on two different versions of base_lib?
-  2. Should we include the content of base_lib twice? If yes, when changing it during the developpement of project_2, which one do we change?
+* Project-related dependencies
+* Other-project dependencies (as per requirement 6.)
+* System dependencies
+The latter two are taken care of through Cmake and proper versionning. Regarding project-related dependencies, they must be managed at the commit level but we are not aware of git-based (or other version-control system) dependency managers. Our compromise is to use git submodules with a diciplined approach. In our ![example of library dependencies](./project_dep_graph.svg), dependencies form a direct acyclic graph of depth 4. It is complicated:
+1. It is 4 levels deep, which mean that dependencies (example: `project_1` depends on `app_lib_0`) have themselves dependencies (`app_lib_0` depends on `base_lib`)
+2. It is NOT a tree (example `project_2` depends on `app_lib_0` and `app_lib_1`, and both depend on `base_lib`). Which raises two questions:
+    1. What should we do if `app_lib_0` and `app_lib_1` depend on two different versions of `base_lib`?
+    2. Should we include the content of `base_lib` twice? If yes, when changing it during the developpement of `project_2`, which one do we change?
 
+The approach is the following:
+1. Depending on two versions of the same library is forbidden/not supported.
+2. Each repository `r` has all its project-related dependencies `d` taken into account as git submodules placed in `root_of_r/external/d`
+3. Each repository `r` also has its indirect dependencies `i_d` stored in `root_of_r/external/i_d`
+4. When working on repository `r`, *only its submodules are checked out*. The submodules of the submodules (indirect dependencies) are already checked out at the first level, and they are supposed to have the same version. Hence there is no need to have them twice.
+
++ The approach is relatively simple because there is only one submodule depth.
+- The top-level repository must know of all its indirect dependencies. If we where to use a complex layering of many library, this could be a problem, but
+    * In reality, the total number of repository involved is small. If it grows too much, then some project-related dependencies should be separated as other-project dependencies.
+    * In our example, indirect dependencies are also direct dependencies, so it doesn't change anything. Our experience is that we are in this scenario most of the time.
++ At this fine-grained "white-box" level, it would not make sense to depend on two versions of the same library. If this is the case at some point, it happened because of a controlable update at one side. So either the discrepancy should be fixed, or the update should be reverted.
+- The following scenario does not work out of the box:
+    * working on `project_2`
+    * we modify `base_lib`, its submodule, then commit it on `base_lib`
+    * then update the `base_lib` commit on `project_2`
+  We have violated the first rule because now `app_lib_0` points to the old commit of `base_lib`, but `project_2` points to the new one. In fact, the `app_lib_0` submodule working directory of `project_2` is built and uses the *new* sources of `base_lib`. The correction is not complicated in principle since we just need to tell `app_lib_0` the new commit of `base_lib` it should point to.
 
 
 The worflow is based on git so every repository is a git repository.
