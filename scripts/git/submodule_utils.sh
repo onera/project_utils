@@ -49,11 +49,25 @@ __git_sclone() {
 }
 export -f __git_sclone
 
+__git_fetchall() {
+  git fetch --recurse-submodules=yes "$@";
+}
+export -f __git_fetchall
+__git_spull() {
+  git pull "$@" && git submodule update --init;
+}
+export -f __git_spull
+__git_spush() {
+  git push --recurse-submodules=on-demand "$@";
+}
+export -f __git_spush
 
+
+# aliases and more verbose status
 git config --global status.submoduleSummary true
 git config --global diff.submodule log
 
-git config --global alias.sclone '__git_sclone'
-git config --global alias.fetchall '__git_fetchall() { git fetch --recurse-submodules=yes "$@"; }; __git_fetchall'
-git config --global alias.spull '__git_spull() { git pull "$@" && git submodule update --init; }; __git_spull'
-git config --global alias.spush '__git_spush() { git push --recurse-submodules=on-demand "$@"; }; __git_spush'
+git config --global alias.sclone '! __git_sclone'
+git config --global alias.fetchall '! __git_fetchall'
+git config --global alias.spull '! __git_spull'
+git config --global alias.spush '! __git_spush'
