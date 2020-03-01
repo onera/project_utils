@@ -14,7 +14,7 @@ __git_config_submod_wd() {
   for submod_conf_path in $submod_conf_paths; do
     if [[ $submod_conf_path =~ submodule\.(.*)\.path ]]; then
     submod_path=${BASH_REMATCH[1]}
-    echo gitdir: $root_path/.git/modules/$submod_path > $submod_path/.git
+    echo gitdir: $root_path/.git/modules/$submod_path > $submod_path/.git # TODO $root_path is absolute -> use relative path (here: breaks if repo is moved on the filesystem)
   fi
   done
 }
