@@ -39,8 +39,6 @@ source_string += "export LD_LIBRARY_PATH="+install_path+"/lib:$LD_LIBRARY_PATH\n
 source_string += "export PYTHONPATH="+install_path+"/lib:$PYTHONPATH\n"
 source_string += "export PYTHONPATH="+install_path+"/py:$PYTHONPATH\n"
 
-print("cmake_vars_file_dir")
-print(cmake_vars_file_dir)
 with open(cmake_vars_file_dir+"/source_"+project_name+".sh", 'w') as f:
   f.write(source_string)
 
