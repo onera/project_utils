@@ -73,8 +73,8 @@ The latter two are taken care of through Cmake (or other build system tools if n
 4. When working on repository `r`, *only its submodules are checked out*. The submodules of the submodules (indirect dependencies) are already checked out at the first level, and they are supposed to have the same version. Hence there is no need to have them twice.
 
 * [+] The approach is relatively simple because from a working tree perspective, there is only one submodule depth.
-* [-] The top-level repository must know of all its indirect dependencies. If we where to use a complex layering of many library, this could be a problem, but
-    * In reality, the total number of repository involved is small. If it grows too much, then some *project-related* dependencies should be separated as *other-project* dependencies.
+* [-] The top-level repository must know all its indirect dependencies. If we where to use a complex layering of many libraries, this could be a problem, but
+    * In reality, the total number of repositories involved is small. If it grows too much, then some *project-related* dependencies should be separated as *other-project* dependencies.
     * In our example, indirect dependencies are also direct dependencies, so it doesn't change anything. Our experience is that we are in this scenario most of the time.
 * [+] At this fine-grained "white-box" level, it would not make sense to depend on two versions of the same library. If this is the case at some point, it happened because of an update at one side. So either the discrepancy should be fixed, or the update should be reverted.
 * [-] We must configure local git repositories in order to see new commits of `base_lib` for all its dependency (see section "Git additionnal commands")
