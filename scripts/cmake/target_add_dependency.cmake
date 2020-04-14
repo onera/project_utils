@@ -28,7 +28,7 @@ endmacro()
 macro(target_add_dependency target dependency)
   append_to_target_dependency_list(${target} ${dependency})
   if(NOT TARGET ${dependency})
-    add_subdirectory(${git_root_dir}/external/${dependency} ${CMAKE_BINARY_DIR}/external/${dependency})
+    add_subdirectory(${PROJECT_ROOT}/external/${dependency} ${CMAKE_BINARY_DIR}/external/${dependency})
   endif()
 endmacro()
 
