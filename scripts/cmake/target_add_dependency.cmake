@@ -21,7 +21,7 @@ macro(append_to_target_thirdparty_dependency_list target)
 endmacro()
 
 # target_add_dependency
-# add the subdirectory ${dependency} located in ${project_root<}/external/
+# add the subdirectory ${dependency} located in ${project_root}/external/
 # the string ${target}_DEPENDENCIES_FIND_PACKAGE_STRING is appended the corresponding find_package() command
 #   the idea is that we will be able to use this string
 #   when adding dependencies to the ${target}Config.cmake file further down the installation process
@@ -46,4 +46,13 @@ endmacro()
 macro(target_add_thirdparty_dependency target)
   append_to_target_thirdparty_dependency_list(${target} ${ARGN})
   find_package(${ARGN})
+endmacro()
+
+# find_and_link_optional_dependency
+# call target_add_thirdparty_dependency and if dependency is found, add it to the target_link_libraries()
+macro(find_and_link_optional_dependency target package_name)
+  target_add_thirdparty_dependency(${target} ${package_name})
+  if (${package_name}_FOUND)
+    target_link_libraries(${target} ${ARGN})
+  endif()
 endmacro()
