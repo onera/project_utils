@@ -93,14 +93,18 @@ __git_sclone() {
 }
 export -f __git_sclone
 
-__git_fetchall() {
-  git fetch --recurse-submodules=yes "$@";
+__git_scheckout() {
+  git checkout "$@" && git submodule update --init;
 }
-export -f __git_fetchall
+export -f __git_spush
+
+
 __git_spull() {
   git pull "$@" && git submodule update --init;
 }
 export -f __git_spull
+
+
 __git_spush() {
   git push --recurse-submodules=on-demand "$@";
 }

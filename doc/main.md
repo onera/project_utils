@@ -82,7 +82,8 @@ The latter two are taken care of through Cmake (or other build system tools if n
 ## Proposed workflow ##
 * Put the contents of `scripts/git/submodule_utils.sh` in your **bash profile**. It will configure git to print more info if a change is made to a submodule. The git aliases `sclone` will also be available.
 * **Clone a repostory** with `git sclone <repo-name>`. This will also make sure that submodules required several times in the dependency graph are only cloned once and share the same repository.
-* When you are **pulling**, use `git spull` to update the dependencies. If you pull with `git pull` or `git fetch + git merge`, and the dependencies have changed, you will likely get a compilation error, since the dependencies' working trees are still on older versions. Use `git spull` to correct this behavior.
+* When you **switch to a branch**, use `git scheckout` so that the dependencies' working trees will be updated to the versions referenced by the current branch of main repository.
+* When you are **pulling**, use `git spull` to update the dependencies. If you pull with `git pull` or `git fetch + git merge`, the dependencies' working trees are still on older versions. To update them to the versions referenced by the current branch of main repository, use `git submodule update`.
 * If you develop only in the main project, then you don't need to care about submodules for anything else.
 * If you made a **change to a submodule** `base_lib` (located in `<main-repo-path>/external/base_lib`) then
     * You should see it with e.g. `cd <main-repo-path>; git status`.
@@ -103,7 +104,6 @@ The latter two are taken care of through Cmake (or other build system tools if n
 * Say that we are working on `project_2`. If submodule `base_lib` has been changed outside of `project_2` (e.g. through developpers working on `project_1`):
     * **Most of the time, it doesn't matter**. Don't do anything special regarding `baselib`. Use `git spull` to get a coherent, new version of `project_2`. It will **not** pull the latest `project_2` changes created by the unrelated `project_1`. This is the correct behavior, because it ensures that a particular commit of `project_2` is not silently affected by new versions of its dependencies (here, by a new version of `base_lib` developped in a different context than `project_2`). 
     * If you want to update the dependency, go to `external/base_lib` and pull. Then when you come back to the main folder project, you should see that `base_lib` has an updated version. Commit the change. You may have to commit changes to other submodules that depend on `base_lib` (e.g. `app_lib_0`) before that.
-* If you want to see all potential submodules to update, use `git fetchall` to download the changes (TODO fetchall is broken XD).
 
 ## Git additionnal commands ##
 ### sclone #
