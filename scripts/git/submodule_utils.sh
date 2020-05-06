@@ -105,8 +105,9 @@ __git_spull() {
 export -f __git_spull
 
 
+# see https://stackoverflow.com/a/56236629/1583122
 __git_spush() {
-  git push --recurse-submodules=on-demand "$@";
+  git submodule foreach 'git push' && git push "$@";
 }
 export -f __git_spush
 
