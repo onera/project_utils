@@ -96,9 +96,7 @@ The latter two are taken care of through Cmake (or other build system tools if n
     * You can then commit your change (`git add ...; git commit ...`).
     * If `base_lib` is also a dependency of another submodule `app_lib_0`, then changes to `base_lib` will also be reported as changes to `app_lib_0`. After having commited the changes to the `base_lib`, you can commit the update of `base_lib` into `app_lib_0`, and then the update of `base_lib` and `app_lib_0` into the main repository.
 * When you are **pushing** a repository, if you changed one of its submodules (new commits), then make sure to also push it.
-* TODO create git aliases to
-   * automate commits of just submodule dependency updates 
-   * push new submodule commits
+* TODO create git alias to automate commits of just submodule dependency updates 
 
 **Updating submodules**
 * Say that we are working on `project_2`. If submodule `base_lib` has been changed outside of `project_2` (e.g. through developpers working on `project_1`):

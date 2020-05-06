@@ -117,6 +117,6 @@ git config --global diff.submodule log
 
 git config --global alias.sclone '! __git_sclone'
 git config --global alias.conf-submod '! __git_config_submodules'
-git config --global alias.fetchall '! __git_fetchall'
+git config --global alias.scheckout '! __git_scheckout'
 git config --global alias.spull '! __git_spull'
 git config --global alias.spush '! __git_spush'
