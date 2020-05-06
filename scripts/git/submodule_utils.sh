@@ -96,7 +96,7 @@ export -f __git_sclone
 __git_scheckout() {
   git checkout "$@" && git submodule update --init;
 }
-export -f __git_spush
+export -f __git_scheckout
 
 
 __git_spull() {
