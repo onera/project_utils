@@ -56,3 +56,31 @@ macro(find_and_link_optional_dependency target package_name)
     target_link_libraries(${target} ${ARGN})
   endif()
 endmacro()
+
+macro(target_install target)
+  install(TARGETS ${target} EXPORT ${target}Targets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+  )
+  install(EXPORT ${target}Targets
+    FILE ${target}Targets.cmake
+    NAMESPACE ${target}::
+    DESTINATION lib/cmake/${target}
+  )
+  install(DIRECTORY ${src_dir} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
+
+  set(TARGET_NAME ${target})
+  string(REPLACE ";" " " TARGET_DEPENDENCIES_FIND_PACKAGE_STRING "${${target}_DEPENDENCIES_FIND_PACKAGE_STRING}")
+  configure_file(
+    ${PROJECT_ROOT}/external/project_utils/scripts/cmake/target_config.cmake.in
+    ${target}Config.cmake
+    @ONLY
+  )
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${target}Config.cmake"
+    DESTINATION lib/cmake/${target}
+  )
+
+  add_library(${target}::${target} ALIAS ${target})
+endmacro()

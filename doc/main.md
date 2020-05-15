@@ -45,7 +45,7 @@ project_2/
 |-- scripts/              # Additional scripts (building, building tests,
 |                         #                deployement machine-specific instructions...)
 |-- tests/                # Functionnality/acceptance/performance/deployment tests
-|-- build/                # NOT followd by git. Temporary files go there (.o files, ...)
+|-- build/                # NOT followed by git. Temporary files go there (.o files, ...)
 ```
 
 ### Versionning ###
