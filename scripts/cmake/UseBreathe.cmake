@@ -20,6 +20,7 @@ function(add_breathe_doc)
     DOXY_FILE
     CONF_FILE
     TARGET_NAME
+    ENV_PATH
     COMMENT
     )
   set(multiValueArgs)
@@ -45,7 +46,7 @@ function(add_breathe_doc)
 
   add_custom_target(${BREATHE_DOC_TARGET_NAME}
     COMMAND
-      ${SPHINX_EXECUTABLE}
+      ${CMAKE_COMMAND} -E env PYTHONPATH=$ENV{PYTHONPATH}:${BREATHE_DOC_ENV_PATH} ${SPHINX_EXECUTABLE}
          -q
          -b html
          -c ${BREATHE_DOC_BUILD_DIR}
