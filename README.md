@@ -6,3 +6,6 @@
 
 ## Acknowledgements ##
 Some of the Find.cmake scripts have been copy-paste from the internet, then modified. A first-line comment gives the source it was copied from.
+
+## License ##
+`project_utils` is available under the MPL-2.0 licence
