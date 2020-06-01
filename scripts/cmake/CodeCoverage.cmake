@@ -216,10 +216,16 @@ function(setup_target_for_coverage_lcov)
         if(CMAKE_VERSION VERSION_GREATER 3.4)
             get_filename_component(EXCLUDE ${EXCLUDE} ABSOLUTE BASE_DIR ${BASEDIR})
         endif()
-        # message("exclude : " ${EXCLUDE})
+        message("exclude : " ${EXCLUDE})
         list(APPEND LCOV_EXCLUDES "${EXCLUDE}")
     endforeach()
     list(REMOVE_DUPLICATES LCOV_EXCLUDES)
+
+    set(LCOV_INCLUDES "")
+    foreach(__incl ${INCLUDE} ${COVERAGE_INCLUDES})
+      list(APPEND LCOV_INCLUDES "${__incl}")
+    endforeach()
+    list(REMOVE_DUPLICATES LCOV_INCLUDES)
 
     # Conditional arguments
     if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
@@ -232,17 +238,18 @@ function(setup_target_for_coverage_lcov)
         # Cleanup lcov
         COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} --zerocounters
         # Create baseline to make sure untouched files show up in the report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b ${BASEDIR} -o ${Coverage_NAME}.base
+        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b ${BASEDIR}  --no-external -o ${Coverage_NAME}.base
 
         # Run tests
         COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
 
         # Capturing lcov counters and generating report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b ${BASEDIR} --capture --output-file ${Coverage_NAME}.capture
+        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b ${BASEDIR} --no-external --capture --output-file ${Coverage_NAME}.capture
         # add baseline counters
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture --output-file ${Coverage_NAME}.total
+        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture --no-external --output-file ${Coverage_NAME}.total
         # filter collected data to final coverage report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
+        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --no-external --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
+        # COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --no-external --include ${LCOV_INCLUDES} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
 
         # Generate HTML output
         COMMAND ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info
