@@ -2,7 +2,7 @@
 #include "std_e/unit_test/mpi/doctest.hpp"
 
 int main(int argc, char** argv) {
-  MPI_Comm comm = get_comm_world();
+  MPI_Init(&argc, &argv);
 
   doctest::Context ctx;
   ctx.setOption("reporters", "mpi_reporter");
