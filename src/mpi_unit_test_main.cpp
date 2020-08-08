@@ -6,7 +6,7 @@ int main(int argc, char** argv) {
 
   doctest::Context ctx;
   ctx.setOption("reporters", "mpi_reporter");
-  ctx.setOption("forces-color", true);
+  ctx.setOption("force-colors", true);
   ctx.applyCommandLine(argc, argv);
 
   int test_result = ctx.run();
