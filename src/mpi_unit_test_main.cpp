@@ -6,7 +6,8 @@ int main(int argc, char** argv) {
   MPI_Init(&argc, &argv);
 
   doctest::Context ctx;
-  ctx.setOption("reporters", "mpi_reporter");
+  ctx.setOption("reporters", "MpiConsoleReporter");
+  ctx.setOption("reporters", "MpiFileReporter");
   ctx.setOption("force-colors", true);
   ctx.applyCommandLine(argc, argv);
 
