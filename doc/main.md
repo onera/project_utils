@@ -104,7 +104,7 @@ The latter two are taken care of through Cmake (or other build system tools if n
     * If you want to update the dependency, go to `external/base_lib` and pull. Then when you come back to the main folder project, you should see that `base_lib` has an updated version. Commit the change. You may have to commit changes to other submodules that depend on `base_lib` (e.g. `app_lib_0`) before that.
 
 ## Git additionnal commands ##
-### sclone #
+### sclone ###
 The following scenario does not work out of the box:
  * working on `project_2`
  * we modify `base_lib`, submodule of `project_2`, then commit the change

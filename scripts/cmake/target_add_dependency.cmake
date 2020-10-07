@@ -69,10 +69,15 @@ macro(target_install target)
     NAMESPACE ${target}::
     DESTINATION lib/cmake/${target}
   )
-  install(DIRECTORY ${src_dir} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
+  install(DIRECTORY ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}
+    DESTINATION include
+    FILES_MATCHING
+      PATTERN "*.h"
+      PATTERN "*.hpp"
+  )
 
-  set(TARGET_NAME ${target})
-  string(REPLACE ";" " " TARGET_DEPENDENCIES_FIND_PACKAGE_STRING "${${target}_DEPENDENCIES_FIND_PACKAGE_STRING}")
+  set(TARGET_NAME ${target}) # WARNING Seems not used but actually used in target_config.cmake.in
+  string(REPLACE ";" " " TARGET_DEPENDENCIES_FIND_PACKAGE_STRING "${${target}_DEPENDENCIES_FIND_PACKAGE_STRING}") # Same, used below
   configure_file(
     ${PROJECT_ROOT}/external/project_utils/scripts/cmake/target_config.cmake.in
     ${target}Config.cmake
