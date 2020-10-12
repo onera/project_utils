@@ -58,6 +58,10 @@ macro(find_and_link_optional_dependency target package_name)
 endmacro()
 
 macro(target_install target)
+  if(NOT DEFINED PROJECT_UTILS_DIR)
+    set(PROJECT_UTILS_DIR ${PROJECT_ROOT}/external/project_utils)
+  endif()
+
   install(TARGETS ${target} EXPORT ${target}Targets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -79,7 +83,7 @@ macro(target_install target)
   set(TARGET_NAME ${target}) # WARNING Seems not used but actually used in target_config.cmake.in
   string(REPLACE ";" " " TARGET_DEPENDENCIES_FIND_PACKAGE_STRING "${${target}_DEPENDENCIES_FIND_PACKAGE_STRING}") # Same, used below
   configure_file(
-    ${PROJECT_ROOT}/external/project_utils/scripts/cmake/target_config.cmake.in
+    ${PROJECT_UTILS_DIR}/scripts/cmake/target_config.cmake.in
     ${target}Config.cmake
     @ONLY
   )
