@@ -110,13 +110,16 @@ The latter two are taken care of through CMake (or other build system tools if n
 
 ## Common cases ##
 
+The library names still refer to the dependency graph above.
+
 ### Updating submodules ###
 * Say that we are working on `My_project`. If submodule `std_e` has been changed outside of `My_project` (e.g. through developpers working on `Project_B`):
     * **Most of the time, it doesn't matter**. Don't do anything special regarding `baselib`. Use `git spull` to get a coherent, new version of `My_project`. It will **not** pull the latest `My_project` changes created by the unrelated `Project_B`. This is the correct behavior, because it ensures that a particular commit of `My_project` is not silently affected by new versions of its dependencies (here, by a new version of `std_e` developped in a different context than `My_project`). 
     * If you want to update the dependency, go to `external/std_e` and pull. Then when you come back to the main folder project, you should see that `std_e` has an updated version. Commit the change. You may have to commit changes to other submodules that depend on `std_e` (e.g. `Maia`) before that.
 
 ### Modifying a submodule ###
-* Say that we are working on `My_project` and in the development process, we want to develop a functionality that is more in the scope of `std_e`:    * We do the development that modifies sources of `std_e`.
+* Say that we are working on `My_project` and in the development process, we want to develop a functionality that is more in the scope of `std_e`:
+    * We do the development that modifies sources of `std_e`.
     * Then `cd My_project/external/std_e && git commit && git push`.
     * Then `cd ../.. && git status`. We should see that `std_e` now has a new version.
     * We can update `My_project` to reflect on the fact that we are now using a new version of `std_e`. It is done with the regular `git commit`. From the point of view of the `My_project` git repository, the only thing that is modified is the commit number of `std_e`
