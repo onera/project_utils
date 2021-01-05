@@ -114,24 +114,24 @@ The library names still refer to the dependency graph above.
 
 ### Updating submodules ###
 * Say that we are working on `My_project`. If submodule `std_e` has been changed outside of `My_project` (e.g. through developpers working on `Project_B`):
-    * **Most of the time, it doesn't matter**. Don't do anything special regarding `baselib`. Use `git spull` to get a coherent, new version of `My_project`. It will **not** pull the latest `My_project` changes created by the unrelated `Project_B`. This is the correct behavior, because it ensures that a particular commit of `My_project` is not silently affected by new versions of its dependencies (here, by a new version of `std_e` developped in a different context than `My_project`). 
-    * If you want to update the dependency, go to `external/std_e` and pull. Then when you come back to the main folder project, you should see that `std_e` has an updated version. Commit the change. You may have to commit changes to other submodules that depend on `std_e` (e.g. `Maia`) before that.
+    * **Most of the time, it doesn't matter**. Don't do anything special regarding `std_e`. Use `git spull` on `My_project` to get a coherent, new version of `My_project`. It will **not** pull the latest `std_e` changes created by the unrelated `Project_B`. This is the correct behavior, because it ensures that a particular commit of `My_project` is not silently affected by new versions of its dependencies (here, by a new version of `std_e` developped in a different context than `My_project`). 
+    * If you want to update `std_e`, go to `external/std_e` and pull. Then when you come back to the main folder project, you should see that `std_e` has an updated version. Commit the change. You may have to commit changes to other submodules that depend on `std_e` (e.g. `Maia`) before that.
 
 ### Modifying a submodule ###
 * Say that we are working on `My_project` and in the development process, we want to develop a functionality that is more in the scope of `std_e`:
-    * We do the development that modifies sources of `std_e`.
+    * We do the development that modifies the source files of `std_e`.
     * Then `cd My_project/external/std_e && git commit && git push`.
     * Then `cd ../.. && git status`. We should see that `std_e` now has a new version.
-    * We can update `My_project` to reflect on the fact that we are now using a new version of `std_e`. It is done with the regular `git commit`. From the point of view of the `My_project` git repository, the only thing that is modified is the commit number of `std_e`
+    * We can update `My_project` to reflect on the fact that we are now using a new version of `std_e`. It is done with the standard `git commit` command. From the point of view of the `My_project` git repository, the only thing that is modified is the commit number of `std_e`
 
-Note that you should not forget to push the development in `std_e` when you push the development in `My_project`. If you forget, a user may update `My_project`, and find that the `std_e` commit that it references is not known by the server (because you did not push it).
+**Do not forget to push** the development in `std_e` when you push the development in `My_project`. If you forget, a user may update `My_project`, and find that the `std_e` commit that it references is not known by the server (because you did not push it).
 
 ### Switching branches - managing DETACHED_HEAD ###
-* Use `git scheckout` instead of `git checkout` to switch branches. If you don't, you will switch for the old to the new branch, but the dependencies will stay at the versions that were used by the old branch.
-* When you switch `My_project` to a new branch `my_branch` with `git scheckout`, `std_e` will be placed at the commit number that was registered by `My_project/my_branch`. However, that commit number could be anywhere on the git history, e.g. `master~10` (git convention that means "10 commits before the current master"). Since `master~10` is not the tip of the branch, git places `std_e` in a `DETACHED_HEAD` state.
+* Use `git scheckout` instead of `git checkout` to switch branches. If you don't, you will switch from the old to the new branch, but the dependencies will stay at the versions that were used by the old branch.
+* When you switch `My_project` to a new branch `my_branch` with `git scheckout`, `std_e` will be placed at the commit number that was registered by `My_project/my_branch`. However, that commit number could be anywhere in the git history, e.g. `master~10` (git convention that means "10 commits before the current master"). Since `master~10` is not the tip of the branch, git places `std_e` in a `DETACHED_HEAD` state.
 * A `DETACHED_HEAD` state is a way for git to say: "if you make a commit, I don't know on which branch to put it". For example, if we are at `master~10`, what is the branch of the next commit? It can't be `master` since it already has a next commit, `master~9`!
 * One solution is then to create a branch from `master~10`: `git checkout -b new_std_e_branch`
-* Another solution is to go to the tip of the branch: `git checkout master`. Be aware that you may need to update `My_project` since you changed to a new version of `std_e`.
+* Another solution is to go to the tip of the branch: `git checkout master`. Be aware that you may need to update the sources of `My_project` since you changed to a new version of its dependency `std_e`.
 
 Note: actually `git status` does not tell you that you are on commit `master~10`, it just gives the commit hash. You can find the branch by looking the history with a GUI or you can use `git rev-parse HEAD | xargs git name-rev`.
 
