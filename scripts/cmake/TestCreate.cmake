@@ -62,7 +62,9 @@ function(create_mpi_pytest name n_proc)
   #                    "${output_conftest_file}"
   #                    COMMENT "Copying conftest.py to the binary directory")
   # add_custom_target(t_${name} ALL DEPENDS "${output_python_file}" "${output_conftest_file}")
-  add_custom_target(t_${name} ALL DEPENDS "${output_python_file}" )
+  # add_custom_target(t_${name} ALL DEPENDS "${output_python_file}" )
+  string(REPLACE / __ target_name t_${name})
+  add_custom_target(${target_name} ALL DEPENDS "${output_python_file}" )
 
   # WORKING_DIRECTORY
   add_test (${name} ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${n_proc}
