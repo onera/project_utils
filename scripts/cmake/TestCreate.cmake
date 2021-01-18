@@ -1,13 +1,22 @@
-function(create_mpi_doctest tested_target n_proc)
+function(create_mpi_doctest)
+  include(CTest)
   set(options)
   set(one_value_args)
-  set(multi_value_args SOURCES LIBRARIES LABEL SERIAL_RUN)
+  set(multi_value_args TESTED_TARGET LABEL SOURCES SERIAL_RUN N_PROC)
   cmake_parse_arguments(ARGS "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
+
+  set(n_proc ${ARGS_N_PROC})
+  set(tested_target ${ARGS_TESTED_TARGET})
 
   set(executable_for_tests ${tested_target}_${ARGS_LABEL})
   add_executable(${executable_for_tests} ${ARGS_SOURCES})
 
-  target_link_libraries(${executable_for_tests} ${tested_target}::${tested_target} MPI::MPI_CXX doctest::doctest)
+  target_link_libraries(${executable_for_tests}
+    PUBLIC
+      ${tested_target}::${tested_target}
+    PRIVATE
+      doctest::doctest
+  )
 
   install(TARGETS ${executable_for_tests} RUNTIME DESTINATION bin)
   if(${ARGS_SERIAL_RUN})
@@ -25,19 +34,14 @@ function(create_mpi_doctest tested_target n_proc)
     )
   endif()
 
-  # > Set properties for the current test
   set_tests_properties(${executable_for_tests} PROPERTIES LABELS "${ARGS_LABEL}")
-  set_tests_properties(${executable_for_tests} PROPERTIES PROCESSORS nproc)
-  set_tests_properties(${executable_for_tests} PROPERTIES RUN_SERIAL ${ARGS_SERIAL_RUN})
+  set_tests_properties(${executable_for_tests} PROPERTIES PROCESSORS ${n_proc})
+  set_tests_properties(${executable_for_tests} PROPERTIES SERIAL_RUN ${ARGS_SERIAL_RUN})
 
-  # > Fail in non slurm
+  # Fails in non-slurm
   # set_tests_properties(${target_name} PROPERTIES PROCESSOR_AFFINITY true)
-
-  # > Specific environement :
-  # set_tests_properties(${target_name} PROPERTIES ENVIRONMENT I_MPI_DEBUG=5)
 endfunction()
 
-# --------------------------------------------------------------------------------
 
 # --------------------------------------------------------------------------------
 function(create_mpi_pytest name n_proc)
@@ -54,15 +58,6 @@ function(create_mpi_pytest name n_proc)
                      "${output_python_file}"
                      COMMENT "Copying ${name} to the binary directory")
 
-  # set(output_conftest_file ${CMAKE_CURRENT_BINARY_DIR}/conftest.py)
-  # add_custom_command(OUTPUT  "${output_conftest_file}"
-  #                    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/conftest.py"
-  #                    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-  #                    "${CMAKE_CURRENT_SOURCE_DIR}/conftest.py"
-  #                    "${output_conftest_file}"
-  #                    COMMENT "Copying conftest.py to the binary directory")
-  # add_custom_target(t_${name} ALL DEPENDS "${output_python_file}" "${output_conftest_file}")
-  # add_custom_target(t_${name} ALL DEPENDS "${output_python_file}" )
   string(REPLACE / __ target_name t_${name})
   add_custom_target(${target_name} ALL DEPENDS "${output_python_file}" )
 
@@ -82,19 +77,15 @@ function(create_mpi_pytest name n_proc)
   set_tests_properties("${name}" PROPERTIES
                        ENVIRONMENT PYTHONPATH=${PROJECT_BINARY_DIR}:${PROJECT_BINARY_DIR}/test:${CMAKE_BINARY_DIR}/external/pytest-mpi-check:$ENV{PYTHONPATH}
                        DEPENDS t_${name})
-  # > Append other
+
   set_property(TEST "${name}" APPEND PROPERTY
                        ENVIRONMENT LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}:$ENV{LD_LIBRARY_PATH})
-  # > Append other
   set_property(TEST "${name}" APPEND PROPERTY
                        ENVIRONMENT PYTEST_PLUGINS=pytest_mpi_check)
   set_tests_properties(${name} PROPERTIES PROCESSORS n_proc)
   if(${ARGS_SERIAL_RUN})
     set_tests_properties(${name} PROPERTIES RUN_SERIAL true)
   endif()
-  # set_tests_properties(${name} PROPERTIES PROCESSOR_AFFINITY true)
-
-
 endfunction()
 # --------------------------------------------------------------------------------
 
