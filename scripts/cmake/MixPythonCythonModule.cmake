@@ -2,6 +2,7 @@ include(UseCython)
 
 # ----------------------------------------------------------------------
 function(mixpython_cython_add_module project_name)
+  message(DEPRECATION "use compile_install_pybind_modules, compile_install_cython_modules and compile_install_python_modules in python_wrapping.cmake instead")
 
 # Pybind
   file(GLOB_RECURSE _pybind_files CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/${project_name}/*.pybind.cpp")
