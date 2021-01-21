@@ -169,23 +169,23 @@ function(mpi_pytest_directory_python_create name tested_dir n_proc)
   # --------------------------------------------------------------------------------
 
 
-  # -r : display a short test summary info (a == all)
+  # -r : display a short test summary info, with a == all except passed (i.e. report failed, skipped, error)
   # -s : no capture (print statements output to stdout)
   # -v : verbose
   # -Wignore : ignore warnings
   add_test (${name} ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${n_proc}
             ${MPIEXEC_PREFLAGS}
-            ${Python_EXECUTABLE} -m pytest ${PROJECT_BINARY_DIR}/${tested_dir} -Wignore -r a -v -s --with-mpi
+            ${Python_EXECUTABLE} -m pytest ${PROJECT_BINARY_DIR}/${tested_dir} -Wignore -ra -v -s --with-mpi
             ${MPIEXEC_POSTFLAGS})
 
   # > Set properties for the current test
   set_tests_properties(${name} PROPERTIES LABELS "${ARGS_LABELS}")
-  set_tests_properties("${name}" PROPERTIES
+  set_tests_properties(${name} PROPERTIES
                        ENVIRONMENT PYTHONPATH=${PROJECT_BINARY_DIR}:${PROJECT_BINARY_DIR}/${tested_dir}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check:$ENV{PYTHONPATH}
                        DEPENDS t_${name})
-  set_property(TEST "${name}" APPEND PROPERTY
+  set_property(TEST ${name} APPEND PROPERTY
                        ENVIRONMENT LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}:$ENV{LD_LIBRARY_PATH})
-  set_property(TEST "${name}" APPEND PROPERTY
+  set_property(TEST ${name} APPEND PROPERTY
                        ENVIRONMENT PYTEST_PLUGINS=pytest_mpi_check)
   set_tests_properties(${name} PROPERTIES PROCESSORS n_proc)
   if(${ARGS_SERIAL_RUN})
