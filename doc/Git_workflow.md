@@ -138,8 +138,8 @@ Note: actually `git status` does not tell you that you are on commit `master~10`
 ### Adding submodules ###
 * Let's say you are creating the library `Tasky` and want to use `std_e` as a submodule. Then, as explained in (see [this section](#chosen-solution)), you **must** also add `project_utils` as a submodule.
 * Notice however that when adding `std_e`, `project_utils` will be installed as a submodule of `std_e`. You then have `project_utils` sources two times: in `Tasky/external/project_utils`, and in `Tasky/external/std_e/external/project_utils`. You want to delete the content of the second directory to replace it by a git symbolic link to the first directory. For that:
-* `cd Path/To/Tasky/external/std_e/external/project_utils && rm -rf *`
-* echo "gitdir: Path/To/Tasky/.git/modules/external/project_utils" > .git
+    * `cd Path/To/Tasky/external/std_e/external/project_utils && rm -rf *`
+    * `echo "gitdir: Path/To/Tasky/.git/modules/external/project_utils" > .git`
 
 
 ## Provided Git aliases ##
