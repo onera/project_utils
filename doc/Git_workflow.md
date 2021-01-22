@@ -110,7 +110,7 @@ The latter two are taken care of through CMake (or other build system tools if n
 
 ## Common cases ##
 
-The library names still refer to the dependency graph above.
+The example repository names still refer to the dependency graph above.
 
 ### Updating submodules ###
 * Say that we are working on `My_project`. If submodule `std_e` has been changed outside of `My_project` (e.g. through developpers working on `Project_B`):
@@ -134,6 +134,12 @@ The library names still refer to the dependency graph above.
 * Another solution is to go to the tip of the branch: `git checkout master`. Be aware that you may need to update the sources of `My_project` since you changed to a new version of its dependency `std_e`.
 
 Note: actually `git status` does not tell you that you are on commit `master~10`, it just gives the commit hash. You can find the branch by looking the history with a GUI or you can use `git rev-parse HEAD | xargs git name-rev`.
+
+### Adding submodules ###
+* Let's say you are creating the library `Tasky` and want to use `std_e` as a submodule. Then, as explained in (see [this section](#chosen-solution)), you **must** also add `project_utils` as a submodule.
+* Notice however that when adding `std_e`, `project_utils` will be installed as a submodule of `std_e`. You then have `project_utils` sources two times: in `Tasky/external/project_utils`, and in `Tasky/external/std_e/external/project_utils`. You want to delete the content of the second directory to replace it by a git symbolic link to the first directory. For that:
+* `cd Path/To/Tasky/external/std_e/external/project_utils && rm -rf *`
+* echo "gitdir: Path/To/Tasky/.git/modules/external/project_utils" > .git
 
 
 ## Provided Git aliases ##
