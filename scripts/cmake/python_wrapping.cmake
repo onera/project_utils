@@ -1,15 +1,19 @@
 set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages/")
 
 
+# take all the .pybind.cpp in the source of ${project_name}
+# and create a hierarchy of python modules mimicking the folder structure ${project_name}'s source tree
+# the top-level folder is called c${project_name}
 function(compile_install_pybind_modules project_name)
   file(GLOB_RECURSE pybind_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${project_name}/*.pybind.cpp")
   foreach(pybind_file ${pybind_files})
     # Relative path
     get_filename_component(pybind_dir ${pybind_file} DIRECTORY)
-    file(RELATIVE_PATH pybind_dir_rel ${CMAKE_CURRENT_SOURCE_DIR} ${pybind_dir})
+    file(RELATIVE_PATH pybind_dir_rel ${CMAKE_CURRENT_SOURCE_DIR}/${project_name} ${pybind_dir})
+    set(pybind_dir_rel c${project_name}/${pybind_dir_rel})
      
     # Create target
-    get_filename_component(mod_name ${pybind_file} NAME_WE) # If same name : problem
+    get_filename_component(mod_name ${pybind_file} NAME_WE)
     pybind11_add_module(${mod_name} ${pybind_file})
     target_include_directories(${mod_name} PUBLIC ${Mpi4Py_INCLUDE_DIR})
     target_link_libraries(${mod_name} PUBLIC ${project_name}::${project_name})
@@ -113,4 +117,18 @@ function(compile_install_python_modules project_name)
   endforeach ()
 
   add_custom_target(project_python_copy_${project_name} ALL DEPENDS ${python_copied_modules_${project_name}})
+endfunction()
+
+
+function(install_python_modules project_name)
+  file(GLOB_RECURSE py_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${project_name}/*.py")
+
+  foreach (py_file ${py_files})
+    file(RELATIVE_PATH py_file_rel  ${CMAKE_CURRENT_SOURCE_DIR} ${py_file})
+
+    get_filename_component(py_dir_rel "${py_file_rel}" DIRECTORY)
+    install(FILES       "${py_file_rel}"
+            DESTINATION "${SITE_PACKAGES_OUTPUT_DIRECTORY}/${py_dir_rel}"
+            COMPONENT   "python")
+  endforeach ()
 endfunction()
