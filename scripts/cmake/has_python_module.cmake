@@ -5,7 +5,7 @@ function(has_python_module module)
     set(is_required TRUE)
   endif()
   execute_process(COMMAND "${Python_EXECUTABLE}" "-c" "import ${module}"
-    RESULT_VARIABLE module_status 
+    RESULT_VARIABLE module_status
   )
   if (NOT ${module_status} EQUAL 0)
     if (is_required)

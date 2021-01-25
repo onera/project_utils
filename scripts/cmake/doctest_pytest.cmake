@@ -60,14 +60,14 @@ function(create_pytest)
   # Test environment
   set(ld_library_path ${PROJECT_BINARY_DIR}:$ENV{LD_LIBRARY_PATH})
   set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check:$ENV{PYTHONPATH})
-  set(pythonpath ${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}) # TODO move from here
+  if (NOT MAIA_USE_PDM_INSTALL) # TODO move from here
+    set(pythonpath ${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath})
+  endif()
 
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
-    set(pycache_flag "-X pycache_prefix=${PROJECT_BINARY_DIR}")
     set(pycache_env_var "PYTHONPYCACHEPREFIX=${PROJECT_BINARY_DIR}")
   else()
-    set(pycache_flag "-B") # no way to specify __pycache__ location before python-3.8
     set(pycache_env_var "PYTHONDONTWRITEBYTECODE=1")
   endif()
 
@@ -75,19 +75,20 @@ function(create_pytest)
   # -s : no capture (print statements output to stdout)
   # -v : verbose
   # -Wignore : Python never warns (TODO why needed here?)
+  # --rootdir : path where to put temporary test info (internal to pytest and its plugins)
   # TODO if pytest>=6, add --import-mode importlib (cleaner PYTHONPATH used by pytest)
-  set(pytest_command ${Python_EXECUTABLE} ${pycache_flag} -m pytest ${tested_folder} -Wignore -ra -v -s --with-mpi)
+  set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --with-mpi)
   if(${serial_run})
     add_test(
       NAME ${test_name}
-      COMMAND ${pytest_command}
+      COMMAND ${cmd}
     )
   else()
     add_test(
       NAME ${test_name}
       COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${n_proc}
               ${MPIEXEC_PREFLAGS}
-              ${pytest_command}
+              ${cmd}
               ${MPIEXEC_POSTFLAGS}
     )
   endif()
@@ -96,7 +97,7 @@ function(create_pytest)
     ${test_name} 
     PROPERTIES 
       LABELS "${label}"
-      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path};PYTHONPATH=${pythonpath}"
+      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path};PYTHONPATH=${pythonpath};${pycache_env_var}"
       SERIAL_RUN ${serial_run}
       PROCESSORS ${n_proc}
       #PROCESSOR_AFFINITY true # Fails in non-slurm, not working if not launch with srun
@@ -109,6 +110,7 @@ function(create_pytest)
   set(PYTEST_ENV_LD_LIBRARY_PATH ${ld_library_path})
   set(PYTEST_ENV_PYTHONPATH      ${pythonpath})
   set(PYTEST_ENV_PYCACHE_ENV_VAR ${pycache_env_var})
+  set(PYTEST_ROOTDIR             ${PROJECT_BINARY_DIR}) 
   configure_file(
     ${PROJECT_UTILS_CMAKE_DIR}/pytest_source.sh.in
     ${PROJECT_BINARY_DIR}/source.sh
