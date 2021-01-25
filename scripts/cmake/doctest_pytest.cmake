@@ -98,12 +98,21 @@ function(create_pytest)
       ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path};PYTHONPATH=${pythonpath}"
       SERIAL_RUN ${serial_run}
       PROCESSORS ${n_proc}
-      #PROCESSOR_AFFINITY true # Fails in non-slurm, Not working if not launch with srun
+      #PROCESSOR_AFFINITY true # Fails in non-slurm, not working if not launch with srun
   )
-
   # TODO this one makes pytest execute nothing (WTF?)
-  #set_property(TEST ${test_name} APPEND PROPERTY
-  #                     ENVIRONMENT PYTEST_PLUGINS=pytest_mpi_check)
+  # ENVIRONMENT PYTEST_PLUGINS=pytest_mpi_check
+
+  # Create pytest_source.sh with all needed env var to run pytest outside of CTest
+  ## strings inside pytest_source.sh.in to be replaced
+  set(PYTEST_ENV_LD_LIBRARY_PATH ${ld_library_path})
+  set(PYTEST_ENV_PYTHONPATH      ${pythonpath})
+  set(PYTEST_ENV_PYCACHE_ENV_VAR ${pycache_env_var})
+  configure_file(
+    ${PROJECT_UTILS_CMAKE_DIR}/pytest_source.sh.in
+    ${PROJECT_BINARY_DIR}/source.sh
+    @ONLY
+  )
 endfunction()
 # --------------------------------------------------------------------------------
 
