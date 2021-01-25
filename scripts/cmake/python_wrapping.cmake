@@ -1,8 +1,8 @@
 set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages/")
 
 
-# take all the .pybind.cpp in the source of ${project_name}
-# and create a hierarchy of python modules mimicking the folder structure ${project_name}'s source tree
+# Take all the .pybind.cpp in the source of ${project_name}
+# and create a hierarchy of python modules mimicking the folder structure of ${project_name}'s source tree
 # the top-level folder is called c${project_name}
 function(compile_install_pybind_modules project_name)
   file(GLOB_RECURSE pybind_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${project_name}/*.pybind.cpp")

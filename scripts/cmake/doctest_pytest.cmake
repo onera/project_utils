@@ -60,6 +60,7 @@ function(create_pytest)
   # Test environment
   set(ld_library_path ${PROJECT_BINARY_DIR}:$ENV{LD_LIBRARY_PATH})
   set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check:$ENV{PYTHONPATH})
+  set(pythonpath ${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}) # TODO move from here
 
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
