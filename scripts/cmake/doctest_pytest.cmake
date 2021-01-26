@@ -58,8 +58,8 @@ function(create_pytest)
   set(test_name "${PROJECT_NAME}_pytest_${label}")
 
   # Test environment
-  set(ld_library_path ${PROJECT_BINARY_DIR}:$ENV{LD_LIBRARY_PATH})
-  set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check:$ENV{PYTHONPATH})
+  set(ld_library_path ${PROJECT_BINARY_DIR})
+  set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check)
   if (NOT MAIA_USE_PDM_INSTALL) # TODO move from here
     set(pythonpath ${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath})
   endif()
@@ -97,20 +97,20 @@ function(create_pytest)
     ${test_name} 
     PROPERTIES 
       LABELS "${label}"
-      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path};PYTHONPATH=${pythonpath};${pycache_env_var}"
+      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path}:$ENV{LD_LIBRARY_PATH};PYTHONPATH=${pythonpath}:$ENV{PYTHONPATH};${pycache_env_var}"
       SERIAL_RUN ${serial_run}
       PROCESSORS ${n_proc}
       #PROCESSOR_AFFINITY true # Fails in non-slurm, not working if not launch with srun
   )
-  # TODO this one makes pytest execute nothing (WTF?)
+  # TODO this one makes pytest execute nothing (pytest_mpi_check not ready)
   # ENVIRONMENT PYTEST_PLUGINS=pytest_mpi_check
 
   # Create pytest_source.sh with all needed env var to run pytest outside of CTest
   ## strings inside pytest_source.sh.in to be replaced
-  set(PYTEST_ENV_LD_LIBRARY_PATH ${ld_library_path})
-  set(PYTEST_ENV_PYTHONPATH      ${pythonpath})
-  set(PYTEST_ENV_PYCACHE_ENV_VAR ${pycache_env_var})
-  set(PYTEST_ROOTDIR             ${PROJECT_BINARY_DIR}) 
+  set(PYTEST_ENV_PREPEND_LD_LIBRARY_PATH ${ld_library_path})
+  set(PYTEST_ENV_PREPEND_PYTHONPATH      ${pythonpath})
+  set(PYTEST_ENV_PYCACHE_ENV_VAR         ${pycache_env_var})
+  set(PYTEST_ROOTDIR                     ${PROJECT_BINARY_DIR})
   configure_file(
     ${PROJECT_UTILS_CMAKE_DIR}/pytest_source.sh.in
     ${PROJECT_BINARY_DIR}/source.sh
