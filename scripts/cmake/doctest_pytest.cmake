@@ -78,7 +78,8 @@ function(create_pytest)
   # -Wignore : Python never warns (TODO why needed here?)
   # --rootdir : path where to put temporary test info (internal to pytest and its plugins)
   # TODO if pytest>=6, add --import-mode importlib (cleaner PYTHONPATH used by pytest)
-  set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --with-mpi)
+  # set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --with-mpi)
+  set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --junitxml=toto.xml)
   if(${serial_run})
     add_test(
       NAME ${test_name}
