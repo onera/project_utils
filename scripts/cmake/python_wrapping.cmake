@@ -56,6 +56,7 @@ function(compile_install_swig_modules project_name)
     # Relative path
     get_filename_component(swig_dir ${swig_file} DIRECTORY )
     file(RELATIVE_PATH swig_dir_rel ${CMAKE_CURRENT_SOURCE_DIR} ${swig_dir})
+    set(swig_dir_rel ${swig_dir_rel}_swig)
 
     # Create target
     get_filename_component(mod_name ${swig_file} NAME_WE) # If same name : problem
