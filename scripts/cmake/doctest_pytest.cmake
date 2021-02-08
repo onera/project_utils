@@ -59,7 +59,9 @@ function(create_pytest)
 
   # Test environment
   set(ld_library_path ${PROJECT_BINARY_DIR})
-  set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check)
+  # set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check)
+  set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${PROJECT_SOURCE_DIR}/external/pytest-mpi-check)
+  # message("   ---> ${PROJECT_SOURCE(_DIR}/external/pytest-mpi-check")
   if (NOT MAIA_USE_PDM_INSTALL) # TODO move from here
     set(pythonpath ${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath})
   endif()
@@ -70,7 +72,7 @@ function(create_pytest)
   else()
     set(pycache_env_var "PYTHONDONTWRITEBYTECODE=1")
   endif()
-  set(pytest_plugins "pytest_mpi_check")
+  set(pytest_plugins "pytest_mpi_check.plugin")
 
   # -r : display a short test summary info, with a == all except passed (i.e. report failed, skipped, error)
   # -s : no capture (print statements output to stdout)
@@ -99,7 +101,7 @@ function(create_pytest)
     ${test_name}
     PROPERTIES
       LABELS "${label}"
-      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path}:$ENV{LD_LIBRARY_PATH};PYTHONPATH=${pythonpath}:$ENV{PYTHONPATH};${pycache_env_var};PYTEST_PLUGINS=pytest_mpi_check"
+      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path}:$ENV{LD_LIBRARY_PATH};PYTHONPATH=${pythonpath}:$ENV{PYTHONPATH};${pycache_env_var};PYTEST_PLUGINS=pytest_mpi_check.plugin"
       SERIAL_RUN ${serial_run}
       PROCESSORS ${n_proc}
       #PROCESSOR_AFFINITY true # Fails in non-slurm, not working if not launch with srun
