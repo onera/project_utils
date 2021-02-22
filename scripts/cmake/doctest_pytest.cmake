@@ -60,7 +60,7 @@ function(create_pytest)
   # Test environment
   set(ld_library_path ${PROJECT_BINARY_DIR})
   # set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check)
-  set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${PROJECT_SOURCE_DIR}/external/pytest-mpi-check)
+  set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${PROJECT_ROOT}/external/pytest-mpi-check)
   # message("   ---> ${PROJECT_SOURCE(_DIR}/external/pytest-mpi-check")
   if (NOT MAIA_USE_PDM_INSTALL) # TODO move from here
     set(pythonpath ${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath})
