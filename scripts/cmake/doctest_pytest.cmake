@@ -81,7 +81,20 @@ function(create_pytest)
   # --rootdir : path where to put temporary test info (internal to pytest and its plugins)
   # TODO if pytest>=6, add --import-mode importlib (cleaner PYTHONPATH used by pytest)
   # set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --with-mpi)
-  set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --junitxml=toto.xml)
+  set(pytest_cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s)
+  if (${${PROJECT_NAME}_ENABLE_COVERAGE})
+    #Setup configuration file for coverage
+    configure_file(
+      ${PROJECT_UTILS_CMAKE_DIR}/coverage_config.in
+      ${PROJECT_BINARY_DIR}/test/.coveragerc_${label}
+      @ONLY
+    )
+    #Setup coverage command using the config file
+    set(cmd coverage run --rcfile=.coveragerc_${label} -m ${pytest_cmd})
+  else()
+    set(cmd ${pytest_cmd})
+  endif()
+
   if(${serial_run})
     add_test(
       NAME ${test_name}
