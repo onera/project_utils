@@ -57,14 +57,25 @@ function(create_pytest)
   set(n_proc ${ARGS_N_PROC})
   set(test_name "${PROJECT_NAME}_pytest_${label}")
 
-  # Test environment
+  # Test environment {
+  set(ld_library_path "${PROJECT_BINARY_DIR}")
+  set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (warpping) modules, source for regular .py files
+
+  ## PYTHONPATH from submodule dependencies
   set(ld_library_path ${PROJECT_BINARY_DIR})
-  # set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/external/pytest-mpi-check)
-  set(pythonpath ${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}:${PROJECT_ROOT}/external/pytest-mpi-check)
-  # message("   ---> ${PROJECT_SOURCE(_DIR}/external/pytest-mpi-check")
-  if (NOT MAIA_USE_PDM_INSTALL) # TODO move from here
-    set(pythonpath ${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath})
+  file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${CMAKE_SOURCE_DIR}/external/" "${CMAKE_SOURCE_DIR}/external/*")
+  foreach(submod_dep ${submod_dependencies})
+    # We put every dependency in the PYTHONPATH, but only Python ones are necessary
+    set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
+    set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
+  endforeach()
+
+  ### Special case for ParaDiGM because of the different folder structure
+  if (NOT MAIA_USE_PDM_INSTALL)
+    set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
   endif()
+  # Test environment }
+
 
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
@@ -77,7 +88,7 @@ function(create_pytest)
   # -r : display a short test summary info, with a == all except passed (i.e. report failed, skipped, error)
   # -s : no capture (print statements output to stdout)
   # -v : verbose
-  # -Wignore : Python never warns (TODO why needed here?)
+  # -Wignore : Python never warns (else: many warning from Cassiopee)
   # --rootdir : path where to put temporary test info (internal to pytest and its plugins)
   # TODO if pytest>=6, add --import-mode importlib (cleaner PYTHONPATH used by pytest)
   # set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --with-mpi)
@@ -119,8 +130,6 @@ function(create_pytest)
       PROCESSORS ${n_proc}
       #PROCESSOR_AFFINITY true # Fails in non-slurm, not working if not launch with srun
   )
-  # TODO this one makes pytest execute nothing (pytest_mpi_check not ready)
-  # ENVIRONMENT PYTEST_PLUGINS=pytest_mpi_check
 
   # Create pytest_source.sh with all needed env var to run pytest outside of CTest
   ## strings inside pytest_source.sh.in to be replaced
