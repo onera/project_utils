@@ -125,7 +125,7 @@ function(create_pytest)
     ${test_name}
     PROPERTIES
       LABELS "${label}"
-      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path}:$ENV{LD_LIBRARY_PATH};PYTHONPATH=${pythonpath}:$ENV{PYTHONPATH};${pycache_env_var};PYTEST_PLUGINS=pytest_mpi_check.plugin"
+      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path}:$ENV{LD_LIBRARY_PATH};PYTHONPATH=${pythonpath}:$ENV{PYTHONPATH};${pycache_env_var};PYTEST_PLUGINS=${pytest_plugins}"
       SERIAL_RUN ${serial_run}
       PROCESSORS ${n_proc}
       #PROCESSOR_AFFINITY true # Fails in non-slurm, not working if not launch with srun
