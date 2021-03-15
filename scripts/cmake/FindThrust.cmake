@@ -34,7 +34,6 @@ find_path( THRUST_INCLUDE_DIR
     /usr/include/cuda
     /usr/local/include
     /usr/local/cuda/include
-    /opt/tools/cuda-10.1/targets/x86_64-linux/include
     ${CUDA_INCLUDE_DIRS}
     ${CUDA_TOOLKIT_ROOT_DIR}
     ${CUDA_SDK_ROOT_DIR}
