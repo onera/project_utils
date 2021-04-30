@@ -93,9 +93,9 @@ function(create_pytest)
   # TODO if pytest>=6, add --import-mode importlib (cleaner PYTHONPATH used by pytest)
   # set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --with-mpi)
   execute_process (
-    COMMAND bash -c "command -v pytest"
+    COMMAND bash -c "command -v pytest | tr -d '\n'"
     OUTPUT_VARIABLE pytest_exec
-)
+  )
   set(pytest_cmd ${pytest_exec} --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s)
   if (${${PROJECT_NAME}_ENABLE_COVERAGE})
     #Setup configuration file for coverage
