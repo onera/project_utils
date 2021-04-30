@@ -93,7 +93,7 @@ function(create_pytest)
   # TODO if pytest>=6, add --import-mode importlib (cleaner PYTHONPATH used by pytest)
   # set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --with-mpi)
   execute_process (
-    COMMAND bash -c "which pytest"
+    COMMAND bash -c "command -v pytest"
     OUTPUT_VARIABLE pytest_exec
 )
   set(pytest_cmd ${pytest_exec} --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s)
