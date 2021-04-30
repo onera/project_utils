@@ -92,7 +92,11 @@ function(create_pytest)
   # --rootdir : path where to put temporary test info (internal to pytest and its plugins)
   # TODO if pytest>=6, add --import-mode importlib (cleaner PYTHONPATH used by pytest)
   # set(cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s --with-mpi)
-  set(pytest_cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s)
+  execute_process (
+    COMMAND bash -c "which pytest"
+    OUTPUT_VARIABLE pytest_exec
+)
+  set(pytest_cmd ${pytest_exec} --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s)
   if (${${PROJECT_NAME}_ENABLE_COVERAGE})
     #Setup configuration file for coverage
     configure_file(
