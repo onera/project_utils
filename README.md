@@ -9,3 +9,11 @@ Some of the Find.cmake scripts have been copy-pasted from the internet, then mod
 
 ## License ##
 `project_utils` is available under the MPL-2.0 license (https://mozilla.org/MPL/2.0/).
+
+## TODO ##
+TOC:
+git and submodules
+cmake
+
+build doc with cmake, sphinx, doxygen, breathe
+https://devblogs.microsoft.com/cppblog/clear-functional-c-documentation-with-sphinx-breathe-doxygen-cmake/
