@@ -83,7 +83,9 @@ function(create_pytest)
   else()
     set(pycache_env_var "PYTHONDONTWRITEBYTECODE=1")
   endif()
-  set(pytest_plugins "pytest_mpi_check.plugin")
+  if(NOT ${serial_run})
+    set(pytest_plugins "pytest_mpi_check.plugin")
+  endif()
 
   # -r : display a short test summary info, with a == all except passed (i.e. report failed, skipped, error)
   # -s : no capture (print statements output to stdout)
@@ -96,6 +98,8 @@ function(create_pytest)
     COMMAND bash -c "command -v pytest | tr -d '\n'"
     OUTPUT_VARIABLE pytest_exec
   )
+  message("pytest=" ${pytest_exec})
+  set(pytest_exec "/usr/bin/pytest-3")
   set(pytest_cmd ${pytest_exec} --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s)
   if (${${PROJECT_NAME}_ENABLE_COVERAGE})
     #Setup configuration file for coverage
