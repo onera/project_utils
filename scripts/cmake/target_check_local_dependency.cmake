@@ -10,7 +10,7 @@ macro(target_check_local_dependency sub_repo_name mandatory)
       )
     else()
       message(WARNING
-       Did not find optional submodule "${PROJECT_ROOT}/external/${sub_repo_name}."
+       "Did not find optional submodule ${PROJECT_ROOT}/external/${sub_repo_name}."
       )
       set(${sub_repo_name}_FOUND OFF)
     endif()
