@@ -105,8 +105,9 @@ function(create_pytest)
       )
     endif()
   endif()
-  set(pytest_cmd ${pytest_exec} --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -Wignore -ra -v -s)
+
   if (${${PROJECT_NAME}_ENABLE_COVERAGE})
+    set(pytest_cmd pytest --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -ra -v -s)
     #Setup configuration file for coverage
     configure_file(
       ${PROJECT_UTILS_CMAKE_DIR}/coverage_config.in
@@ -116,6 +117,7 @@ function(create_pytest)
     #Setup coverage command using the config file
     set(cmd coverage run --rcfile=.coveragerc_${label} -m ${pytest_cmd})
   else()
+    set(pytest_cmd ${pytest_exec} --rootdir=${PROJECT_BINARY_DIR} ${tested_folder} -ra -v -s)
     set(cmd ${pytest_cmd})
   endif()
 
