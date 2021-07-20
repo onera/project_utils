@@ -79,6 +79,8 @@ macro(target_install target)
     FILES_MATCHING
       PATTERN "*.h"
       PATTERN "*.hpp"
+      PATTERN "*.hxx"
+      PATTERN "*.cxx"
   )
 
   set(TARGET_NAME ${target}) # WARNING Seems not used but actually used in target_config.cmake.in
