@@ -14,7 +14,7 @@ macro(append_to_target_dependency_list target)
   list(APPEND ${target}_DEPENDENCIES_FIND_PACKAGE_STRING "find_package(${dependency})\n")
   list(APPEND ${target}_DEPENDENCIES_STRING "\"${dependency}\",")
 endmacro()
-macro(append_to_target_thirdparty_dependency_list target)
+macro(append_to_target_thirdparty_dependency_list target) # TODO rename target->project
   set(dependency ${ARGN})
   list(APPEND ${target}_DEPENDENCIES_FIND_PACKAGE_STRING "find_package(${dependency})\n")
   list(APPEND ${target}_THIRDPARTY_DEPENDENCIES_STRING "\"${dependency}\",")
@@ -46,6 +46,11 @@ endmacro()
 macro(target_add_thirdparty_dependency target)
   append_to_target_thirdparty_dependency_list(${target} ${ARGN})
   find_package(${ARGN})
+endmacro()
+# same but better name # TODO remove old name
+macro(project_find_package)
+  append_to_target_thirdparty_dependency_list(${PROJECT_NAME} ${ARGV})
+  find_package(${ARGV})
 endmacro()
 
 # find_and_link_optional_dependency

@@ -1,6 +1,34 @@
 set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages/")
 
 
+# compile ${cpython_module_file} into a module of the same name, depending on ${target}, and install it
+function(compile_install_cpython_module target cpython_module_file)
+  get_filename_component(mod_name ${cpython_module_file} NAME_WE)
+
+  add_library(${mod_name} SHARED ${cpython_module_file})
+  set_target_properties(${mod_name} PROPERTIES PREFIX "") # do not prefix by lib
+  target_include_directories(${mod_name} PUBLIC
+    $<BUILD_INTERFACE:${include_dir}>
+    $<INSTALL_INTERFACE:include/${target}>
+  )
+
+  target_link_libraries(${mod_name}
+    PUBLIC
+      Python::Python
+      ${target}
+  )
+
+  set_target_properties(${mod_name}
+    PROPERTIES
+      LINKER_LANGUAGE C
+  )
+
+# Install target
+  install(TARGETS ${mod_name}
+          LIBRARY DESTINATION ${SITE_PACKAGES_OUTPUT_DIRECTORY}/${target})
+endfunction()
+
+
 # Take all the .pybind.cpp in the source of ${project_name}
 # and create a hierarchy of python modules mimicking the folder structure of ${project_name}'s source tree
 # the top-level folder is called c${project_name}
@@ -11,7 +39,7 @@ function(compile_install_pybind_modules project_name)
     get_filename_component(pybind_dir ${pybind_file} DIRECTORY)
     file(RELATIVE_PATH pybind_dir_rel ${CMAKE_CURRENT_SOURCE_DIR}/${project_name} ${pybind_dir})
     set(pybind_dir_rel c${project_name}/${pybind_dir_rel})
-     
+
     # Create target
     get_filename_component(mod_name ${pybind_file} NAME_WE)
     pybind11_add_module(${mod_name} ${pybind_file})
@@ -65,7 +93,7 @@ function(compile_install_swig_modules project_name)
     set(CMAKE_SWIG_FLAGS -module ${swig_mod_name}) # prevent the need to prefix by _ when importing the module in python
     swig_add_library(
       ${swig_mod_name}
-      TYPE MODULE 
+      TYPE MODULE
       LANGUAGE python
       OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${swig_dir_rel}"
       SOURCES
@@ -121,6 +149,7 @@ function(compile_install_python_modules project_name)
 endfunction()
 
 
+# TODO move to python_install.cmake (not wrapping)
 function(install_python_modules project_name)
   file(GLOB_RECURSE py_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${project_name}/*.py")
 
