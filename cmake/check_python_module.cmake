@@ -1,6 +1,6 @@
 # also see https://cmake.org/pipermail/cmake/2011-January/041666.html
 
-function(has_python_module module)
+function(check_python_module module)
   if(ARGC GREATER 1 AND ARGV1 STREQUAL "REQUIRED")
     set(is_required TRUE)
   endif()

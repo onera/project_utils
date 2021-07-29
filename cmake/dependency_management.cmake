@@ -22,7 +22,7 @@ macro(_append_to_target_thirdparty_dependency_list target)
   list(APPEND ${target}_DEPENDENCIES_FIND_PACKAGE_STRING "find_package(${dependency})\n")
   list(APPEND ${target}_THIRDPARTY_DEPENDENCIES_STRING "\"${dependency}\",")
 endmacro()
-# ----------------------------------------------------------------------------------------------------------------------
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # project_add_subdirectory
@@ -37,7 +37,7 @@ macro(project_add_subdirectory dependency)
     add_subdirectory(${PROJECT_ROOT}/external/${dependency} ${CMAKE_BINARY_DIR}/external/${dependency})
   endif()
 endmacro()
-# ----------------------------------------------------------------------------------------------------------------------
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # project_find_package
@@ -47,7 +47,23 @@ macro(project_find_package)
   _append_to_target_thirdparty_dependency_list(${PROJECT_NAME} ${ARGV})
   find_package(${ARGV})
 endmacro()
+
+
 # ----------------------------------------------------------------------------------------------------------------------
+# project_add_subdir_or_package
+# ----------------------------------------------------------------------------------------------------------------------
+# try to add a dependency by project_add_subdirectory
+# if the dependency is not present as a subdirectory, add it with project_find_package
+macro(project_add_subdir_or_package dependency)
+  include(${PROJECT_UTILS_CMAKE_DIR}/check_local_dependency.cmake)
+  check_local_dependency(${dependency})
+  if (std_e_FOUND)
+    project_add_subdirectory(${dependency})
+  else()
+    project_find_package(${dependency} CONFIG ${ARGN})
+  endif()
+endmacro()
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # target_install
@@ -96,4 +112,3 @@ macro(target_install target)
 
   add_library(${target}::${target} ALIAS ${target})
 endmacro()
-# ----------------------------------------------------------------------------------------------------------------------
