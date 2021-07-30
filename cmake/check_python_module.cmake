@@ -1,5 +1,5 @@
+# check_python_module
 # also see https://cmake.org/pipermail/cmake/2011-January/041666.html
-
 function(check_python_module module)
   if(ARGC GREATER 1 AND ARGV1 STREQUAL "REQUIRED")
     set(is_required TRUE)
@@ -9,7 +9,7 @@ function(check_python_module module)
   )
   if (NOT ${module_status} EQUAL 0)
     if (is_required)
-      message(ERROR " Could not find \"${module}\" python required module")
+      message(FATAL_ERROR " Could not find \"${module}\" python required module")
     else()
       message(WARNING "Could not find \"${module}\" python optional module")
     endif()
