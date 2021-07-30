@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # _append_to_target_dependency_list and _append_to_target_thirdparty_dependency_list
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # create global variables storing a target dependencies
 # these variables are useful later when installing the target
 # note: both _append_to_target_dependency_list and _append_to_target_thirdparty_dependency_list
@@ -24,9 +24,9 @@ macro(_append_to_target_thirdparty_dependency_list target)
 endmacro()
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # project_add_subdirectory
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # add the subdirectory ${dependency} located in ${project_root}/external/
 # the string ${target}_DEPENDENCIES_FIND_PACKAGE_STRING is appended the corresponding find_package() command
 #   the idea is that we will be able to use this string
@@ -39,9 +39,9 @@ macro(project_add_subdirectory dependency)
 endmacro()
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # project_find_package
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # same as project_add_subdirectory except we call find_package instead of add_directory
 macro(project_find_package)
   _append_to_target_thirdparty_dependency_list(${PROJECT_NAME} ${ARGV})
@@ -49,9 +49,9 @@ macro(project_find_package)
 endmacro()
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # project_add_subdir_or_package
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # try to add a dependency by project_add_subdirectory
 # if the dependency is not present as a subdirectory, add it with project_find_package
 macro(project_add_subdir_or_package dependency)
@@ -65,9 +65,21 @@ macro(project_add_subdir_or_package dependency)
 endmacro()
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
+# find_and_link_optional_dependency
+# --------------------------------------------------------------------------------------------------
+# call target_add_thirdparty_dependency and if dependency is found, add it to the target_link_libraries()
+macro(find_and_link_optional_dependency target package_name)
+  target_add_thirdparty_dependency(${target} ${package_name})
+  if (${package_name}_FOUND)
+    target_link_libraries(${target} ${ARGN})
+  endif()
+endmacro()
+
+
+# --------------------------------------------------------------------------------------------------
 # target_install
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 # Install a target:
 #   Boilerplate for installing files of ${target}
 #   Create a ${target}Config.cmake that will **automatically** contain dependencies
