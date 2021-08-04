@@ -48,6 +48,13 @@ macro(project_find_package)
   find_package(${ARGV})
 endmacro()
 
+# --------------------------------------------------------------------------------------------------
+# project_add_dependency
+# --------------------------------------------------------------------------------------------------
+macro(project_add_dependency dependency)
+  _append_to_target_dependency_list(${PROJECT_NAME} ${dependency})
+endmacro()
+
 
 # --------------------------------------------------------------------------------------------------
 # project_add_subdir_or_package
