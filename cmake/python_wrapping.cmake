@@ -51,7 +51,6 @@ function(compile_install_pybind_modules project_name)
     # Create target
     get_filename_component(mod_name ${pybind_file} NAME_WE)
     pybind11_add_module(${mod_name} ${pybind_file})
-    target_include_directories(${mod_name} PUBLIC ${Mpi4Py_INCLUDE_DIR})
     target_link_libraries(${mod_name} PUBLIC ${project_name}::${project_name})
     set_target_properties(${mod_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${pybind_dir_rel}")
 
@@ -85,7 +84,9 @@ endfunction()
 
 
 function(compile_install_swig_modules project_name)
+  set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD) # SWIG: use standard target name (no underscore)
   find_package(SWIG 3.0.12 REQUIRED)
+  include(${PROJECT_UTILS_CMAKE_DIR}/find_package/UseSWIG-fixed.cmake) # fix to circunvent properties not propagated to dependencies
 
   file(GLOB_RECURSE swig_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${project_name}/*.i")
   foreach(swig_file ${swig_files})

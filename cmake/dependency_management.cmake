@@ -66,18 +66,6 @@ endmacro()
 
 
 # --------------------------------------------------------------------------------------------------
-# find_and_link_optional_dependency
-# --------------------------------------------------------------------------------------------------
-# call target_add_thirdparty_dependency and if dependency is found, add it to the target_link_libraries()
-macro(find_and_link_optional_dependency target package_name)
-  target_add_thirdparty_dependency(${target} ${package_name})
-  if (${package_name}_FOUND)
-    target_link_libraries(${target} ${ARGN})
-  endif()
-endmacro()
-
-
-# --------------------------------------------------------------------------------------------------
 # target_install
 # --------------------------------------------------------------------------------------------------
 # Install a target:
@@ -86,10 +74,9 @@ endmacro()
 #     - if project_find_package() was used instead of find_package()
 #     - if project_add_subdirectory() was used instead of add_subdirectory()
 macro(target_install target)
-  if(NOT DEFINED PROJECT_ROOT)
-    set(PROJECT_ROOT ${CMAKE_SOURCE_DIR} CACHE PATH "Root directory, where the submodules are populated")
+  if (NOT DEFINED PROJECT_UTILS_CMAKE_DIR)
+    message(FATAL_ERROR "PROJECT_UTILS_CMAKE_DIR is not defined")
   endif()
-  set(PROJECT_UTILS_CMAKE_DIR ${PROJECT_ROOT}/external/project_utils/scripts/cmake)
 
   install(TARGETS ${target} EXPORT ${target}Targets
     LIBRARY DESTINATION lib
