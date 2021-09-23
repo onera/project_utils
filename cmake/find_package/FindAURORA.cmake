@@ -4,8 +4,9 @@
 #
 #  NEC_FORTRAN_COMPILER
 #
-# See also UseNEC.cmake
+# See also UseAURORA.cmake
 #=============================================================================
+
 find_program( NEC_FORTRAN_COMPILER
               NAMES nfort
               HINTS "$ENV{NEC_HOME}/bin"
@@ -63,12 +64,13 @@ if (NEC_FORTRAN_COMPILER  AND
   set(NEC_AURORA_LIBRARIES ${NEC_VEOS_LIBRARY} ${NEC_VEOSINFO_LIBRARY}) #${NEC_VEOSTRACE_LIBRARY})
 
 else()
+
   set(NEC_AURORA_INCLUDE_DIR "")
   set(NEC_AURORA_LIBRARIES "")
+
 endif()
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( NEC REQUIRED_VARS NEC_FORTRAN_COMPILER NEC_C_COMPILER NEC_CXX_COMPILER)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS( AURORA REQUIRED_VARS NEC_FORTRAN_COMPILER NEC_C_COMPILER NEC_CXX_COMPILER)
 
 mark_as_advanced( NEC_FORTRAN_COMPILER NEC_C_COMPILER)
-

@@ -4,15 +4,16 @@
 #
 #  NEC_FORTRAN_COMPILER
 #
-# See also FindNEC.cmake
+# See also FindAURORA.cmake
 #=============================================================================
+
 function( compile_nec _name generated_file)
   # Default to assuming all files are Fortran.
   set( nec_object )
 
-  file(GLOB_RECURSE fortran_sources CONFIGURE_DEPENDS *.f90 *.for)
-  file(GLOB_RECURSE c_sources CONFIGURE_DEPENDS *.c)
-  file(GLOB_RECURSE cpp_sources CONFIGURE_DEPENDS *.nec.cpp)
+  file(GLOB_RECURSE fortran_sources CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/*.f90 ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/*.for)
+  file(GLOB_RECURSE c_sources CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/*.c)
+  file(GLOB_RECURSE cpp_sources CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/utilities/*.nec.cpp)
 
   list(FILTER fortran_sources EXCLUDE REGEX ".*\.in\.for$")
   list(FILTER fortran_sources EXCLUDE REGEX ".*\.in\.f90$")
@@ -44,7 +45,7 @@ function( compile_nec _name generated_file)
     set( comment "Pre-Processing Fortran source for ${fortran_file_name_we}..." )
     add_custom_command( OUTPUT  ${_pre_generated_file}
                         COMMAND cpp
-                        ARGS    ${fortran_file} -DE_DOUBLEREAL -D__ve__ -I/${PROJECT_SOURCE_DIR}/src -o ${_pre_generated_file}
+                        ARGS    ${fortran_file} -DE_DOUBLEREAL -D__ve__ -I/${PROJECT_SOURCE_DIR} -o ${_pre_generated_file}
                         DEPENDS ${fortran_file}
                         COMMENT ${comment_preprocessor}
     )
@@ -64,7 +65,7 @@ function( compile_nec _name generated_file)
     set( comment "Compiling Aurora Fortran source for ${fortran_file_name_we}..." )
     add_custom_command( OUTPUT  ${_generated_file}
                         COMMAND ${NEC_FORTRAN_COMPILER}
-                        ARGS    ${_pre_generated_file} -fpp -fdiag-vector=2 -fopenmp -fPIC -traceback -DE_DOUBLEREAL -fextend-source -report-all -ftrace -c -I/${PROJECT_SOURCE_DIR}/src -o ${_generated_file}
+                        ARGS    ${_pre_generated_file} -fpp -fdiag-vector=2 -fopenmp -fPIC -traceback -DE_DOUBLEREAL -fextend-source -report-all -c -I/${PROJECT_SOURCE_DIR} -o ${_generated_file}
                         DEPENDS ${_pre_generated_file}
                         COMMENT ${comment}
     )
@@ -100,7 +101,7 @@ function( compile_nec _name generated_file)
     set( comment "Compiling Aurora C source for ${c_file_name_we}..." )
     add_custom_command( OUTPUT  ${_generated_file}
                         COMMAND ${NEC_C_COMPILER}
-                        ARGS    ${c_file} -fopenmp -fPIC -ftrace -I/${PROJECT_SOURCE_DIR}/src -c -o ${_generated_file}
+                        ARGS    ${c_file} -fopenmp -fPIC -I/${PROJECT_SOURCE_DIR} -c -o ${_generated_file}
                         DEPENDS ${c_file}
                         COMMENT ${comment}
     )
@@ -112,9 +113,9 @@ function( compile_nec _name generated_file)
 
   endforeach()
 
-  # Manage C Files
+  # Manage CPP Files
   foreach( cpp_file ${cpp_sources} )
-    # message( "cpp_file : " ${cpp_file} )
+    message( "cpp_file : " ${cpp_file} )
 
     # get_filename_component(python_file_directory "${python_file}" DIRECTORY)
     get_filename_component(cpp_file_name_we "${cpp_file}" NAME_WE)
@@ -134,7 +135,7 @@ function( compile_nec _name generated_file)
     set( comment "Compiling Aurora C++ source for ${cpp_file_name_we}..." )
     add_custom_command( OUTPUT  ${_generated_file}
                         COMMAND ${NEC_CXX_COMPILER}
-                        ARGS    ${cpp_file} -std=c++17 -fopenmp -fPIC -ftrace -I/${PROJECT_SOURCE_DIR}/src -c -o ${_generated_file}
+                        ARGS    ${cpp_file} -std=c++17 -fopenmp -fPIC -I/${PROJECT_SOURCE_DIR} -c -o ${_generated_file}
                         DEPENDS ${cpp_file}
                         COMMENT ${comment}
     )
@@ -157,12 +158,11 @@ function( compile_nec _name generated_file)
   # message( "nobject : " ${nobject})
 
   # Create Shared library / TODO Static
-
   if( ${nobject} GREATER 0 )
     set( commentlink "Linking all object into Shared Library source for ${_name}..." )
     add_custom_command( OUTPUT  lib${_name}.so
                         COMMAND ${NEC_C_COMPILER}
-                        ARGS    -fopenmp  -ftrace -shared -o lib${_name}.so ${nec_object} -lveftrace -lveio
+                        ARGS    -fopenmp  -shared -o lib${_name}.so ${nec_object}
                         DEPENDS ${nec_object}
                         COMMENT ${commentlink}
     )
