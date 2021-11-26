@@ -68,7 +68,9 @@ function(create_pytest)
   set(ld_library_path ${PROJECT_BINARY_DIR})
   file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${CMAKE_SOURCE_DIR}/external/" "${CMAKE_SOURCE_DIR}/external/*")
   foreach(submod_dep ${submod_dependencies})
-    # We put every dependency in the PYTHONPATH, but only Python ones are necessary
+    # We put every dependency in the LD_LIBRARY_PATH, but only those with binary libraries are actually necessary
+    set(ld_library_path "${PROJECT_BINARY_DIR}/external/${submod_dep}:${ld_library_path}") # Compiled modules
+    # We put every dependency in the PYTHONPATH, but only those with Python modules are actually necessary
     set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
     set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
   endforeach()
