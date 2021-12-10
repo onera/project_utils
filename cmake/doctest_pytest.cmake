@@ -3,13 +3,14 @@ function(create_doctest)
   include(CTest)
   set(options)
   set(one_value_args)
-  set(multi_value_args TESTED_TARGET LABEL SOURCES SERIAL_RUN N_PROC)
+  set(multi_value_args TESTED_TARGET LABEL SOURCES SERIAL_RUN N_PROC DOCTEST_ARGS)
   cmake_parse_arguments(ARGS "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
   set(tested_target ${ARGS_TESTED_TARGET})
   set(label ${ARGS_LABEL})
   set(sources ${ARGS_SOURCES})
   set(serial_run ${ARGS_SERIAL_RUN})
   set(n_proc ${ARGS_N_PROC})
+  set(doctest_args ${ARGS_DOCTEST_ARGS})
 
   set(test_name "${tested_target}_doctest_${label}")
   add_executable(${test_name} ${sources})
@@ -25,14 +26,15 @@ function(create_doctest)
   if(${serial_run})
     add_test(
       NAME ${test_name}
-      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${test_name}
+      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${test_name} ${doctest_args}
     )
   else()
     add_test(
       NAME ${test_name}
       COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${n_proc}
               ${MPIEXEC_PREFLAGS}
-              ${CMAKE_CURRENT_BINARY_DIR}/${test_name}
+              #echo "toto"
+              ${CMAKE_CURRENT_BINARY_DIR}/${test_name} ${doctest_args}
               ${MPIEXEC_POSTFLAGS}
     )
   endif()
@@ -52,12 +54,13 @@ endfunction()
 function(create_pytest)
   set(options)
   set(one_value_args)
-  set(multi_value_args TESTED_FOLDER LABEL SERIAL_RUN N_PROC)
+  set(multi_value_args TESTED_FOLDER LABEL SERIAL_RUN N_PROC PYTEST_ARGS)
   cmake_parse_arguments(ARGS "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
   set(tested_folder ${ARGS_TESTED_FOLDER})
   set(label ${ARGS_LABEL})
   set(serial_run ${ARGS_SERIAL_RUN})
   set(n_proc ${ARGS_N_PROC})
+  set(pytest_args ${ARGS_PYTEST_ARGS})
   set(test_name "${PROJECT_NAME}_pytest_${label}")
 
   # Test environment {
@@ -129,14 +132,14 @@ function(create_pytest)
   if(${serial_run})
     add_test(
       NAME ${test_name}
-      COMMAND ${cmd}
+      COMMAND ${cmd} ${pytest_args}
     )
   else()
     add_test(
       NAME ${test_name}
       COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${n_proc}
               ${MPIEXEC_PREFLAGS}
-              ${cmd}
+              ${cmd} ${pytest_args}
               ${MPIEXEC_POSTFLAGS}
     )
   endif()
