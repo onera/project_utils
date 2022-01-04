@@ -4,8 +4,11 @@ cmake_host_system_information(RESULT HOSTNAME QUERY HOSTNAME)
 # Additionnal CMAKE_BUILD_TYPE: Profiling and Sanitize
 # ----------------------------------------------------------------------------------------------------------------------
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set (CMAKE_Fortran_FLAGS_SANITIZE "-O0 -g -fcheck=bounds -fbacktrace -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra")
+  set (CMAKE_C_FLAGS_SANITIZE "-O0 -g -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra")
   set (CMAKE_CXX_FLAGS_SANITIZE "-O0 -g -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra ")
   # Other interesting flags
+  # for python : export LD_PRELOAD=$(gcc -print-file-name=libasan.so)
   #-ftree-vectorize -ftree-loop-vectorize -fvect-cost-model=unlimited -mprefer-vector-width=512
   #-ftree-loop-optimize -ftree-vectorize -fopt-info -fopt-info-all
   #-fprofile-arcs -ftest-coverage --coverage
