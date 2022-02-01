@@ -51,5 +51,5 @@ macro(build_documentation)
 
 # 2. Install
   install(DIRECTORY ${SPHINX_BUILD}
-          DESTINATION doc/${PROJECT_NAME})
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME})
 endmacro()
