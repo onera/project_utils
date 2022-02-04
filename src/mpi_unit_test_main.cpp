@@ -1,16 +1,9 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest/extensions/doctest_mpi.h"
+#include "std_e/log.hpp"
 
-int main(int argc, char** argv) {
-  int provided_thread_support;
-  MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided_thread_support);
-  if (provided_thread_support!=MPI_THREAD_MULTIPLE) {
-    std::string s;
-    if (provided_thread_support==MPI_THREAD_SINGLE) s = "MPI_THREAD_SINGLE";
-    if (provided_thread_support==MPI_THREAD_FUNNELED) s = "MPI_THREAD_FUNNELED";
-    if (provided_thread_support==MPI_THREAD_SERIALIZED) s = "MPI_THREAD_SERIALIZED";
-    std::cout << "WARNING: MPI_THREAD_MULTIPLE was asked, but only " + s + " was provided\n";
-  }
+int main(int argc, char *argv[]) {
+  doctest::mpi_init_thread(argc,argv,MPI_THREAD_MULTIPLE);
 
   doctest::Context ctx;
   ctx.setOption("reporters", "MpiConsoleReporter");
@@ -20,7 +13,7 @@ int main(int argc, char** argv) {
 
   int test_result = ctx.run();
 
-  MPI_Finalize();
+  doctest::mpi_finalize();
 
   return test_result;
 }
