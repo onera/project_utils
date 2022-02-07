@@ -1,6 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest/extensions/doctest_mpi.h"
-#include "std_e/log.hpp"
 
 int main(int argc, char *argv[]) {
   doctest::mpi_init_thread(argc,argv,MPI_THREAD_MULTIPLE);
