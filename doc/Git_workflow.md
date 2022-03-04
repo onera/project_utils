@@ -142,7 +142,7 @@ Note: actually `git status` does not tell you that you are on commit `master~10`
     * `echo "gitdir: Path/To/Tasky/.git/modules/external/project_utils" > .git`
 
 
-## Provided Git aliases ##
+## Provided commands and Git aliases ##
 ### sclone ###
 `git sclone` should be used instead of `git clone` when working with this framework. It will download and configure submodules as expected by the framework.
 
@@ -153,3 +153,10 @@ We need `git sclone` in order to handle "diamond-shaped dependencies". For examp
  * we modify `std_e`, submodule of `My_project`, then commit the change. The git working tree of `std_e` is now at v1.
 
 Now for both `Maia` and `My_project`, the dependency `std_e` needs to be seen has changed to v1. For `My project`, this works out-of-the box since `std_e` is located at `My_project/external/std_e`. But for Maia, we would expect a kind of symbolic link from `My_project/external/Maia/external/std_e` to `My_project/external/std_e` to be informed, when inside `My_project/external/Maia`, that `std_e` has been modified. This is actually exactly what is put in place by `git sclone` (the git equivalent of a symbolic link actually being that `My_project/external/Maia/external/std_e/.git` contains the line `gitdir: My_project/.git/modules/std_e`).
+
+### git\_config\_submodules ###
+`git sclone` is in reality mostly a chaining of:
+* `git clone`
+* `cd $cloned_repo`
+* `git submodule update --init`
+* `git_config_submodules`
