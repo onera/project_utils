@@ -66,6 +66,7 @@ function(create_pytest)
   # Test environment {
   set(ld_library_path "${PROJECT_BINARY_DIR}")
   set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (warpping) modules, source for regular .py files
+  set(path "${PROJECT_SOURCE_DIR}/scripts")
 
   ## PYTHONPATH from submodule dependencies
   set(ld_library_path ${PROJECT_BINARY_DIR})
@@ -76,6 +77,7 @@ function(create_pytest)
     # We put every dependency in the PYTHONPATH, but only those with Python modules are actually necessary
     set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
     set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
+    set(path "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}")
   endforeach()
 
   ### Special case for ParaDiGM because of the different folder structure
@@ -154,10 +156,12 @@ function(create_pytest)
       #PROCESSOR_AFFINITY true # Fails in non-slurm, not working if not launch with srun
   )
 
-  # Create pytest_source.sh with all needed env var to run pytest outside of CTest
+  # Create source.sh with all needed env var to run pytest outside of CTest
+  # TODO move this somewhere else (not related to pytest)
   ## strings inside pytest_source.sh.in to be replaced
   set(PYTEST_ENV_PREPEND_LD_LIBRARY_PATH ${ld_library_path})
   set(PYTEST_ENV_PREPEND_PYTHONPATH      ${pythonpath})
+  set(PYTEST_ENV_PREPEND_PATH            ${path})
   set(PYTEST_ENV_PYCACHE_ENV_VAR         ${pycache_env_var})
   set(PYTEST_ROOTDIR                     ${PROJECT_BINARY_DIR})
   set(PYTEST_PLUGINS                     ${pytest_plugins})
