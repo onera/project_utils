@@ -39,9 +39,32 @@ function(create_doctest)
     )
   endif()
 
+  # Test environment { # TODO factor with create_pytest
+  set(ld_library_path "${PROJECT_BINARY_DIR}")
+  set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (warpping) modules, source for regular .py files
+  set(path "${PROJECT_SOURCE_DIR}/scripts")
+
+  ## PYTHONPATH from submodule dependencies
+  set(ld_library_path ${PROJECT_BINARY_DIR})
+  file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${CMAKE_SOURCE_DIR}/external/" "${CMAKE_SOURCE_DIR}/external/*")
+  foreach(submod_dep ${submod_dependencies})
+    # We put every dependency in the LD_LIBRARY_PATH, but only those with binary libraries are actually necessary
+    set(ld_library_path "${PROJECT_BINARY_DIR}/external/${submod_dep}:${ld_library_path}") # Compiled modules
+    # We put every dependency in the PYTHONPATH, but only those with Python modules are actually necessary
+    set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
+    set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
+    set(path "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}")
+  endforeach()
+
+  ### Special case for ParaDiGM because of the different folder structure
+  if (NOT MAIA_USE_PDM_INSTALL)
+    set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
+  endif()
+  # Test environment }
   set_tests_properties(${test_name}
     PROPERTIES
       LABELS "${label}"
+      ENVIRONMENT "LD_LIBRARY_PATH=${ld_library_path}:$ENV{LD_LIBRARY_PATH};PYTHONPATH=${pythonpath}:$ENV{PYTHONPATH}"
       SERIAL_RUN ${serial_run}
       PROCESSORS ${n_proc}
       #PROCESSOR_AFFINITY true # Fails in non-slurm
