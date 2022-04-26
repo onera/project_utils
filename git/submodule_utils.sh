@@ -50,11 +50,7 @@ __git_config_submod_wd() {
         trap - SIGINT # reset
         if (($status != 0)); then
           echo
-          if [[ $subsubmod_conf_path == *"external/"* ]]; then
-            echo "Error: could not fetch external subsubmodule $submod_path; aborting"; exit 1
-          else
-            echo "Warning: could not fetch submodule extension $submod_path"
-          fi
+          echo "Warning: could not fetch submodule extension $submod_path"
         fi
       fi
 
@@ -82,6 +78,22 @@ git_config_submodules() {
   fi
 }
 export -f git_config_submodules
+git_init_submodules() {
+  sm_names=$(cd external/ && ls)
+  for sm_name in ${sm_names}; do
+    sm_path="external/${sm_name}"
+    echo "Initializing submodule ${sm_path}..."
+    trap : SIGINT # catch signal SIGINT (used by Ctrl-C) and do nothing
+    git submodule update --init ${sm_path}
+    status=$?
+    trap - SIGINT # reset
+    if (($status != 0)); then
+      echo
+      echo "Warning: could not fetch submodule ${sm_path}"
+    fi
+  done
+}
+export -f git_init_submodules
 
 __git_sclone() {
   # clone without submodules
@@ -108,7 +120,7 @@ __git_sclone() {
       echo "Unable to access folder \"${repository_name}\""; exit 1
     fi
 
-    git submodule update --init
+    git_init_submodules
     status=$?
     if (($status != 0)); then
       echo "Cloning of submodules failed"; exit 1
