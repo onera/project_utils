@@ -74,25 +74,12 @@ endfunction()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-function(create_pytest)
-  set(options)
-  set(one_value_args)
-  set(multi_value_args TESTED_FOLDER LABEL SERIAL_RUN N_PROC PYTEST_ARGS)
-  cmake_parse_arguments(ARGS "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
-  set(tested_folder ${ARGS_TESTED_FOLDER})
-  set(label ${ARGS_LABEL})
-  set(serial_run ${ARGS_SERIAL_RUN})
-  set(n_proc ${ARGS_N_PROC})
-  set(pytest_args ${ARGS_PYTEST_ARGS})
-  set(test_name "${PROJECT_NAME}_pytest_${label}")
-
-  # Test environment {
+macro(setup_test_environment_variables)
   set(ld_library_path "${PROJECT_BINARY_DIR}")
   set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (warpping) modules, source for regular .py files
   set(path "${PROJECT_SOURCE_DIR}/scripts")
 
   ## PYTHONPATH from submodule dependencies
-  set(ld_library_path ${PROJECT_BINARY_DIR})
   file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${CMAKE_SOURCE_DIR}/external/" "${CMAKE_SOURCE_DIR}/external/*")
   foreach(submod_dep ${submod_dependencies})
     # We put every dependency in the LD_LIBRARY_PATH, but only those with binary libraries are actually necessary
@@ -107,8 +94,6 @@ function(create_pytest)
   if (NOT MAIA_USE_PDM_INSTALL)
     set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
   endif()
-  # Test environment }
-
 
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
@@ -119,6 +104,45 @@ function(create_pytest)
   if(NOT ${serial_run})
     set(pytest_plugins "pytest_mpi_check.plugin")
   endif()
+endmacro()
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Create source.sh with all needed env var to run pytest outside of CTest
+function(create_sourcing_script_in_build)
+  setup_test_environment_variables()
+
+  ## strings inside pytest_source.sh.in to be replaced
+  set(PYTEST_ENV_PREPEND_LD_LIBRARY_PATH ${ld_library_path})
+  set(PYTEST_ENV_PREPEND_PYTHONPATH      ${pythonpath})
+  set(PYTEST_ENV_PREPEND_PATH            ${path})
+  set(PYTEST_ENV_PYCACHE_ENV_VAR         ${pycache_env_var})
+  set(PYTEST_ROOTDIR                     ${PROJECT_BINARY_DIR})
+  set(PYTEST_PLUGINS                     ${pytest_plugins})
+  configure_file(
+    ${PROJECT_UTILS_CMAKE_DIR}/pytest_source.sh.in
+    ${PROJECT_BINARY_DIR}/source.sh
+    @ONLY
+  )
+endfunction()
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+function(create_pytest)
+  set(options)
+  set(one_value_args)
+  set(multi_value_args TESTED_FOLDER LABEL SERIAL_RUN N_PROC PYTEST_ARGS)
+  cmake_parse_arguments(ARGS "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
+  set(tested_folder ${ARGS_TESTED_FOLDER})
+  set(label ${ARGS_LABEL})
+  set(serial_run ${ARGS_SERIAL_RUN})
+  set(n_proc ${ARGS_N_PROC})
+  set(pytest_args ${ARGS_PYTEST_ARGS})
+  set(test_name "${PROJECT_NAME}_pytest_${label}")
+
+  setup_test_environment_variables()
 
   # -r : display a short test summary info, with a == all except passed (i.e. report failed, skipped, error)
   # -s : no capture (print statements output to stdout)
@@ -180,7 +204,7 @@ function(create_pytest)
   )
 
   # Create source.sh with all needed env var to run pytest outside of CTest
-  # TODO move this somewhere else (not related to pytest)
+  # TODO replace by create_sourcing_script_in_build (not related to pytest)
   ## strings inside pytest_source.sh.in to be replaced
   set(PYTEST_ENV_PREPEND_LD_LIBRARY_PATH ${ld_library_path})
   set(PYTEST_ENV_PREPEND_PYTHONPATH      ${pythonpath})
