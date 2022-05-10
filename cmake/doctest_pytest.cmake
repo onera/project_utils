@@ -105,7 +105,10 @@ function(create_pytest)
 
   ### Special case for ParaDiGM because of the different folder structure
   if (NOT MAIA_USE_PDM_INSTALL)
-    set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
+    set(pythonpath "${PROJECT_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
+    set(ld_library_path "${PROJECT_BINARY_DIR}/external/paradigm/src:${ld_library_path}") 
+    set(ld_library_path "${PROJECT_BINARY_DIR}/external/paradigm/src/io:${ld_library_path}") 
+    set(ld_library_path "${PROJECT_BINARY_DIR}/external/paradigm/src/mpi_wrapper/mpi:${ld_library_path}") 
   endif()
   # Test environment }
 
