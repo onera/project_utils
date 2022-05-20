@@ -46,13 +46,16 @@ function(create_doctest)
 
   ## PYTHONPATH from submodule dependencies
   set(ld_library_path ${PROJECT_BINARY_DIR})
-  file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${CMAKE_SOURCE_DIR}/external/" "${CMAKE_SOURCE_DIR}/external/*")
+  file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${PROJECT_SOURCE_DIR}/external/" "${PROJECT_SOURCE_DIR}/external/*")
   foreach(submod_dep ${submod_dependencies})
     # We put every dependency in the LD_LIBRARY_PATH, but only those with binary libraries are actually necessary
     set(ld_library_path "${PROJECT_BINARY_DIR}/external/${submod_dep}:${ld_library_path}") # Compiled modules
-    # We put every dependency in the PYTHONPATH, but only those with Python modules are actually necessary
-    set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
-    set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
+    # Filter to put in PYTHONPATH only dependency with Python modules
+    file(GLOB init_py_files ${PROJECT_ROOT}/external/${submod_dep}/*/__init__.py)
+    if (init_py_files)
+      set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
+      set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
+    endif()
     set(path "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}")
   endforeach()
 
@@ -93,22 +96,26 @@ function(create_pytest)
 
   ## PYTHONPATH from submodule dependencies
   set(ld_library_path ${PROJECT_BINARY_DIR})
-  file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${CMAKE_SOURCE_DIR}/external/" "${CMAKE_SOURCE_DIR}/external/*")
+  file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${PROJECT_SOURCE_DIR}/external/" "${PROJECT_SOURCE_DIR}/external/*")
   foreach(submod_dep ${submod_dependencies})
     # We put every dependency in the LD_LIBRARY_PATH, but only those with binary libraries are actually necessary
     set(ld_library_path "${PROJECT_BINARY_DIR}/external/${submod_dep}:${ld_library_path}") # Compiled modules
-    # We put every dependency in the PYTHONPATH, but only those with Python modules are actually necessary
-    set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
-    set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
+    # Filter to put in PYTHONPATH only dependency with Python modules
+    file(GLOB init_py_files ${PROJECT_ROOT}/external/${submod_dep}/*/__init__.py)
+    if (init_py_files)
+      set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
+      set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
+    endif()
     set(path "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}")
   endforeach()
 
   ### Special case for ParaDiGM because of the different folder structure
+  #Todo This is not maia specific ! Name should be changed
   if (NOT MAIA_USE_PDM_INSTALL)
-    set(pythonpath "${PROJECT_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
-    set(ld_library_path "${PROJECT_BINARY_DIR}/external/paradigm/src:${ld_library_path}") 
-    set(ld_library_path "${PROJECT_BINARY_DIR}/external/paradigm/src/io:${ld_library_path}") 
-    set(ld_library_path "${PROJECT_BINARY_DIR}/external/paradigm/src/mpi_wrapper/mpi:${ld_library_path}") 
+    set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
+    set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src:${ld_library_path}")
+    set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src/io:${ld_library_path}")
+    set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src/mpi_wrapper/mpi:${ld_library_path}")
   endif()
   # Test environment }
 
