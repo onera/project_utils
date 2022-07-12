@@ -1,3 +1,4 @@
+## TODO remove Doxygen
 # SEE https://devblogs.microsoft.com/cppblog/clear-functional-c-documentation-with-sphinx-breathe-doxygen-cmake/
 macro(build_documentation)
 # 0. Doxygen
@@ -46,6 +47,35 @@ macro(build_documentation)
                        ${DOXYGEN_INDEX_FILE}
                      MAIN_DEPENDENCY ${SPHINX_CONF_OUT}
                      COMMENT "Generating Sphinx documentation, using Breathe to recover xml files from Doxygen")
+
+  add_custom_target(${PROJECT_NAME}_sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
+
+# 2. Install
+  install(DIRECTORY ${SPHINX_BUILD}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME})
+endmacro()
+
+
+macro(build_sphinx_documentation)
+# 1. Sphinx
+  find_package(Sphinx 3 REQUIRED)
+  set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+  set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/doc/sphinx/html)
+  set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
+
+  set(SPHINX_CONF_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in)
+  set(SPHINX_CONF_OUT ${CMAKE_CURRENT_BINARY_DIR}/doc/conf.py)
+  # replace @PROJECT_NAME@ and @PROJECT_SOURCE_DIR@ values in SPHINX_CONF_IN and output it to SPHINX_CONF_OUT
+  configure_file(${SPHINX_CONF_IN} ${SPHINX_CONF_OUT} @ONLY)
+
+  file(GLOB_RECURSE doc_files ${CMAKE_CURRENT_SOURCE_DIR}/doc/*.rst)
+  add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
+                     COMMAND ${SPHINX_EXECUTABLE} -b html -c ${CMAKE_CURRENT_BINARY_DIR}/doc
+                     ${SPHINX_SOURCE} ${SPHINX_BUILD}
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                     DEPENDS ${doc_files}
+                     MAIN_DEPENDENCY ${SPHINX_CONF_OUT}
+                     COMMENT "Generating Sphinx documentation")
 
   add_custom_target(${PROJECT_NAME}_sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
 
