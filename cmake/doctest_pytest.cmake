@@ -60,7 +60,7 @@ function(create_doctest)
   endforeach()
 
   ### Special case for ParaDiGM because of the different folder structure
-  if (NOT MAIA_USE_PDM_INSTALL)
+  if (${PROJECT_NAME}_BUILD_EMBEDDED_PDM)
     set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
   endif()
   # Test environment }
@@ -89,6 +89,13 @@ function(create_pytest)
   set(pytest_args ${ARGS_PYTEST_ARGS})
   set(test_name "${PROJECT_NAME}_pytest_${label}")
 
+  #Checks
+  check_python_module(pytest REQUIRED)
+  check_python_module(pytest_html)
+  if(NOT ${serial_run})
+    check_local_dependency(pytest-mpi-check)
+  endif()
+
   # Test environment {
   set(ld_library_path "${PROJECT_BINARY_DIR}")
   set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (warpping) modules, source for regular .py files
@@ -111,7 +118,7 @@ function(create_pytest)
 
   ### Special case for ParaDiGM because of the different folder structure
   #Todo This is not maia specific ! Name should be changed
-  if (NOT MAIA_USE_PDM_INSTALL)
+  if (${PROJECT_NAME}_BUILD_EMBEDDED_PDM)
     set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
     set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src:${ld_library_path}")
     set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src/io:${ld_library_path}")
