@@ -98,7 +98,7 @@ function(create_pytest)
 
   # Test environment {
   set(ld_library_path "${PROJECT_BINARY_DIR}")
-  set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (warpping) modules, source for regular .py files
+  set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (wrapping) modules, source for regular .py files
   set(path "${PROJECT_SOURCE_DIR}/scripts")
 
   ## PYTHONPATH from submodule dependencies
@@ -117,7 +117,6 @@ function(create_pytest)
   endforeach()
 
   ### Special case for ParaDiGM because of the different folder structure
-  #Todo This is not maia specific ! Name should be changed
   if (${PROJECT_NAME}_BUILD_EMBEDDED_PDM)
     set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
     set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src:${ld_library_path}")
