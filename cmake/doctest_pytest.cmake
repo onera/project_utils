@@ -1,6 +1,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 function(create_doctest)
   include(CTest)
+  include(${PROJECT_UTILS_CMAKE_DIR}/write_build_env_file.cmake)
   set(options)
   set(one_value_args)
   set(multi_value_args TESTED_TARGET LABEL SOURCES SERIAL_RUN N_PROC DOCTEST_ARGS)
@@ -39,31 +40,9 @@ function(create_doctest)
     )
   endif()
 
-  # Test environment { # TODO factor with create_pytest
-  set(ld_library_path "${PROJECT_BINARY_DIR}")
-  set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (warpping) modules, source for regular .py files
-  set(path "${PROJECT_SOURCE_DIR}/scripts")
+  # Call function in write_build_env_file.cmake to populate paths
+  test_env(ld_library_path pythonpath path)
 
-  ## PYTHONPATH from submodule dependencies
-  set(ld_library_path ${PROJECT_BINARY_DIR})
-  file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${PROJECT_SOURCE_DIR}/external/" "${PROJECT_SOURCE_DIR}/external/*")
-  foreach(submod_dep ${submod_dependencies})
-    # We put every dependency in the LD_LIBRARY_PATH, but only those with binary libraries are actually necessary
-    set(ld_library_path "${PROJECT_BINARY_DIR}/external/${submod_dep}:${ld_library_path}") # Compiled modules
-    # Filter to put in PYTHONPATH only dependency with Python modules
-    file(GLOB init_py_files ${PROJECT_ROOT}/external/${submod_dep}/*/__init__.py)
-    if (init_py_files)
-      set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
-      set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
-    endif()
-    set(path "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}")
-  endforeach()
-
-  ### Special case for ParaDiGM because of the different folder structure
-  if (${PROJECT_NAME}_BUILD_EMBEDDED_PDM)
-    set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
-  endif()
-  # Test environment }
   set_tests_properties(${test_name}
     PROPERTIES
       LABELS "${label}"
@@ -78,6 +57,7 @@ endfunction()
 
 # ----------------------------------------------------------------------------------------------------------------------
 function(create_pytest)
+  include(${PROJECT_UTILS_CMAKE_DIR}/write_build_env_file.cmake)
   set(options)
   set(one_value_args)
   set(multi_value_args TESTED_FOLDER LABEL SERIAL_RUN N_PROC PYTEST_ARGS)
@@ -96,35 +76,8 @@ function(create_pytest)
     check_local_dependency(pytest-mpi-check)
   endif()
 
-  # Test environment {
-  set(ld_library_path "${PROJECT_BINARY_DIR}")
-  set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (wrapping) modules, source for regular .py files
-  set(path "${PROJECT_SOURCE_DIR}/scripts")
-
-  ## PYTHONPATH from submodule dependencies
-  set(ld_library_path ${PROJECT_BINARY_DIR})
-  file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${PROJECT_SOURCE_DIR}/external/" "${PROJECT_SOURCE_DIR}/external/*")
-  foreach(submod_dep ${submod_dependencies})
-    # We put every dependency in the LD_LIBRARY_PATH, but only those with binary libraries are actually necessary
-    set(ld_library_path "${PROJECT_BINARY_DIR}/external/${submod_dep}:${ld_library_path}") # Compiled modules
-    # Filter to put in PYTHONPATH only dependency with Python modules
-    file(GLOB init_py_files ${PROJECT_ROOT}/external/${submod_dep}/*/__init__.py)
-    if (init_py_files)
-      set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
-      set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
-    endif()
-    set(path "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}")
-  endforeach()
-
-  ### Special case for ParaDiGM because of the different folder structure
-  if (${PROJECT_NAME}_BUILD_EMBEDDED_PDM)
-    set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
-    set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src:${ld_library_path}")
-    set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src/io:${ld_library_path}")
-    set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src/mpi_wrapper/mpi:${ld_library_path}")
-  endif()
-  # Test environment }
-
+  # Call function in write_build_env_file.cmake to populate paths
+  test_env(ld_library_path pythonpath path)
 
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
@@ -195,19 +148,5 @@ function(create_pytest)
       #PROCESSOR_AFFINITY true # Fails in non-slurm, not working if not launch with srun
   )
 
-  # Create source.sh with all needed env var to run pytest outside of CTest
-  # TODO move this somewhere else (not related to pytest)
-  ## strings inside pytest_source.sh.in to be replaced
-  set(PYTEST_ENV_PREPEND_LD_LIBRARY_PATH ${ld_library_path})
-  set(PYTEST_ENV_PREPEND_PYTHONPATH      ${pythonpath})
-  set(PYTEST_ENV_PREPEND_PATH            ${path})
-  set(PYTEST_ENV_PYCACHE_ENV_VAR         ${pycache_env_var})
-  set(PYTEST_ROOTDIR                     ${PROJECT_BINARY_DIR})
-  set(PYTEST_PLUGINS                     ${pytest_plugins})
-  configure_file(
-    ${PROJECT_UTILS_CMAKE_DIR}/pytest_source.sh.in
-    ${PROJECT_BINARY_DIR}/source.sh
-    @ONLY
-  )
 endfunction()
 # ----------------------------------------------------------------------------------------------------------------------
