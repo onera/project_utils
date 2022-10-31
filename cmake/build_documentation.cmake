@@ -68,13 +68,11 @@ macro(build_sphinx_documentation)
   # replace @PROJECT_NAME@ and @PROJECT_SOURCE_DIR@ values in SPHINX_CONF_IN and output it to SPHINX_CONF_OUT
   configure_file(${SPHINX_CONF_IN} ${SPHINX_CONF_OUT} @ONLY)
 
-  file(GLOB_RECURSE doc_files ${CMAKE_CURRENT_SOURCE_DIR}/doc/*.rst)
+  file(GLOB_RECURSE doc_files ${CMAKE_CURRENT_SOURCE_DIR}/doc/*)
   add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
-                     COMMAND ${SPHINX_EXECUTABLE} -b html -c ${CMAKE_CURRENT_BINARY_DIR}/doc
-                     ${SPHINX_SOURCE} ${SPHINX_BUILD}
+                     COMMAND ${SPHINX_EXECUTABLE} -b html ${SPHINX_SOURCE} ${SPHINX_BUILD}
                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                      DEPENDS ${doc_files}
-                     MAIN_DEPENDENCY ${SPHINX_CONF_OUT}
                      COMMENT "Generating Sphinx documentation")
 
   add_custom_target(${PROJECT_NAME}_sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
@@ -82,4 +80,52 @@ macro(build_sphinx_documentation)
 # 2. Install
   install(DIRECTORY ${SPHINX_BUILD}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME})
+endmacro()
+
+macro(build_sphinx_report)
+# 1. Sphinx
+  find_package(Sphinx 3 REQUIRED)
+  set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+  set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/doc/sphinx/html)
+  set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
+
+  set(REPORT_DIR ${CMAKE_CURRENT_BINARY_DIR}/report)
+
+  set(SPHINX_CONF_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in)
+  set(SPHINX_CONF_OUT ${REPORT_DIR}/conf.py)
+  # replace @REPORT_DIR@ values in SPHINX_CONF_IN and output it to SPHINX_CONF_OUT
+  configure_file(${SPHINX_CONF_IN} ${SPHINX_CONF_OUT} @ONLY)
+
+  # We don't build directly from ${SPHINX_SOURCE} because of Sphinx limitations
+  #   Indeed, Sphinx wants all the documentation to be contained in one folder (e.g. ${SPHINX_SOURCE})
+  #   But here, we want to get some .rst files from ${CMAKE_CURRENT_SOURCE_DIR}/cases and artifacts (.png...) from ${REPORT_DIR}
+  #   So since this is not possible, we copy everything to ${REPORT_DIR} and build from it
+  file(GLOB_RECURSE doc_files ${SPHINX_SOURCE}/*)
+  add_custom_command(OUTPUT ${REPORT_DIR}/index.rst
+                     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${SPHINX_SOURCE} ${REPORT_DIR}
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                     DEPENDS ${doc_files}
+                     COMMENT "Copying doc/ files (in particular .rst files) to ${REPORT_DIR}")
+  add_custom_target(${PROJECT_NAME}_sphinx_doc ALL DEPENDS ${REPORT_DIR}/index.rst)
+
+  file(GLOB_RECURSE doc_files ${CMAKE_CURRENT_SOURCE_DIR}/cases/*)
+  add_custom_command(OUTPUT ${REPORT_DIR}/cases/cases.rst
+                     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/cases ${REPORT_DIR}/cases/
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                     DEPENDS ${doc_files}
+                     COMMENT "Copying cases/ files (in particular .rst files) to ${REPORT_DIR}")
+  add_custom_target(${PROJECT_NAME}_sphinx_cases ALL DEPENDS ${REPORT_DIR}/cases/cases.rst)
+
+  file(GLOB_RECURSE doc_files ${REPORT_DIR}/*)
+  add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
+                     COMMAND ${SPHINX_EXECUTABLE} -b html ${REPORT_DIR} ${SPHINX_BUILD}
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                     DEPENDS ${doc_files}
+                     COMMENT "Generating Sphinx documentation")
+  add_custom_target(${PROJECT_NAME}_sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
+  add_dependencies(${PROJECT_NAME}_sphinx ${PROJECT_NAME}_sphinx_doc ${PROJECT_NAME}_sphinx_cases)
+
+# 2. Install
+   install(DIRECTORY ${SPHINX_BUILD}
+           DESTINATION ${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME})
 endmacro()
