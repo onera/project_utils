@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------------------------------------------------
-function(test_env ld_library_path_out pythonpath_out path_out)
+function(populate_build_env_paths ld_library_path_out pythonpath_out path_out)
 
   # Populate paths for tests and to produce source.sh file
   set(ld_library_path "${PROJECT_BINARY_DIR}")
@@ -56,8 +56,7 @@ function(write_build_env_file)
     set(pytest_plugins "pytest_mpi_check.plugin")
   endif()
 
-  # Call function to populate paths
-  test_env(ld_library_path pythonpath path)
+  populate_build_env_paths(ld_library_path pythonpath path)
 
   # Create source.sh with all needed env var to run pytest outside of CTest
   ## strings inside pytest_source.sh.in to be replaced

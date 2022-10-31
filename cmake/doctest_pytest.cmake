@@ -41,7 +41,7 @@ function(create_doctest)
   endif()
 
   # Call function in write_build_env_file.cmake to populate paths
-  test_env(ld_library_path pythonpath path)
+  populate_build_env_paths(ld_library_path pythonpath path)
 
   set_tests_properties(${test_name}
     PROPERTIES
@@ -77,7 +77,7 @@ function(create_pytest)
   endif()
 
   # Call function in write_build_env_file.cmake to populate paths
-  test_env(ld_library_path pythonpath path)
+  populate_build_env_paths(ld_library_path pythonpath path)
 
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
