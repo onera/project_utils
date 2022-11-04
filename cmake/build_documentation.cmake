@@ -102,25 +102,25 @@ macro(build_sphinx_report)
   #   So since this is not possible, we copy everything to ${REPORT_DIR} and build from it
   file(GLOB_RECURSE doc_files ${SPHINX_SOURCE}/*)
   add_custom_command(OUTPUT ${REPORT_DIR}/index.rst
-                     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${SPHINX_SOURCE} ${REPORT_DIR}
+                     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${SPHINX_SOURCE} ${REPORT_DIR} # FIXME that we don't delete files here, so the ones deleted in the source still appear here
                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                      DEPENDS ${doc_files}
                      COMMENT "Copying doc/ files (in particular .rst files) to ${REPORT_DIR}")
   add_custom_target(${PROJECT_NAME}_sphinx_doc ALL DEPENDS ${REPORT_DIR}/index.rst)
 
-  file(GLOB_RECURSE doc_files ${CMAKE_CURRENT_SOURCE_DIR}/cases/*)
+  file(GLOB_RECURSE cases_files ${CMAKE_CURRENT_SOURCE_DIR}/cases/*)
   add_custom_command(OUTPUT ${REPORT_DIR}/cases/cases.rst
-                     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/cases ${REPORT_DIR}/cases/
+                     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/cases ${REPORT_DIR}/cases/ # FIXME same problem
                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                     DEPENDS ${doc_files}
+                     DEPENDS ${cases_files}
                      COMMENT "Copying cases/ files (in particular .rst files) to ${REPORT_DIR}")
   add_custom_target(${PROJECT_NAME}_sphinx_cases ALL DEPENDS ${REPORT_DIR}/cases/cases.rst)
 
-  file(GLOB_RECURSE doc_files ${REPORT_DIR}/*)
+  set(all_doc_files ${doc_files} ${cases_files})
   add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
-                     COMMAND ${SPHINX_EXECUTABLE} -b html ${REPORT_DIR} ${SPHINX_BUILD}
+    COMMAND ${SPHINX_EXECUTABLE} -b html ${REPORT_DIR} ${SPHINX_BUILD}
                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                     DEPENDS ${doc_files}
+                     DEPENDS ${all_doc_files}
                      COMMENT "Generating Sphinx documentation")
   add_custom_target(${PROJECT_NAME}_sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})
   add_dependencies(${PROJECT_NAME}_sphinx ${PROJECT_NAME}_sphinx_doc ${PROJECT_NAME}_sphinx_cases)
