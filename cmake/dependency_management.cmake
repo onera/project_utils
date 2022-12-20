@@ -103,6 +103,8 @@ macro(target_install target)
       PATTERN "*.hpp"
       PATTERN "*.hxx"
       PATTERN "*.cxx"
+      PATTERN "*.in.for"
+      PATTERN "*.in.f90"
   )
 
   set(TARGET_NAME ${target}) # WARNING Seems not used but actually used in target_config.cmake.in
