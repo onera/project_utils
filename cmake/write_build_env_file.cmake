@@ -7,18 +7,18 @@ function(populate_build_env_paths ld_library_path_out pythonpath_out path_out)
   set(path "${PROJECT_SOURCE_DIR}/scripts")
 
   ## PYTHONPATH from submodule dependencies
-  set(ld_library_path ${PROJECT_BINARY_DIR})
   file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${PROJECT_SOURCE_DIR}/external/" "${PROJECT_SOURCE_DIR}/external/*")
   foreach(submod_dep ${submod_dependencies})
-    # We put every dependency in the LD_LIBRARY_PATH, but only those with binary libraries are actually necessary
+    # LD_LIBRARY_PATH: Always take the dependency, even if only compiled libraries are actually necessary
     set(ld_library_path "${PROJECT_BINARY_DIR}/external/${submod_dep}:${ld_library_path}") # Compiled modules
-    # Filter to put in PYTHONPATH only dependency with Python modules
+    # PYTHONPATH: Filter to put the dependency if it has Python modules
     file(GLOB init_py_files ${PROJECT_ROOT}/external/${submod_dep}/*/__init__.py)
     if (init_py_files)
       set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
       set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
     endif()
-    set(${path_out} "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}" PARENT_SCOPE)
+    # PATH: Take what is in scripts/
+    set(path "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}")
   endforeach()
 
   # Search for pythonpath in other external folders
@@ -34,14 +34,15 @@ function(populate_build_env_paths ld_library_path_out pythonpath_out path_out)
   endforeach()
   ### Special case for ParaDiGM because of the different folder structure
   if (${PROJECT_NAME}_BUILD_EMBEDDED_PDM)
-    set(${pythonpath_out} "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}" PARENT_SCOPE)
+    set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
     set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src:${ld_library_path}")
     set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src/io:${ld_library_path}")
-    set(${ld_library_path_out} "${CMAKE_BINARY_DIR}/external/paradigm/src/mpi_wrapper/mpi:${ld_library_path}" PARENT_SCOPE)
-  else()
-    set(${pythonpath_out} "${pythonpath}" PARENT_SCOPE)
-    set(${ld_library_path_out} "${ld_library_path}" PARENT_SCOPE)
+    set(ld_library_path "${CMAKE_BINARY_DIR}/external/paradigm/src/mpi_wrapper/mpi:${ld_library_path}")
   endif()
+
+  set(${pythonpath_out} "${pythonpath}" PARENT_SCOPE)
+  set(${ld_library_path_out} "${ld_library_path}" PARENT_SCOPE)
+  set(${path_out} "${path}" PARENT_SCOPE)
 endfunction()
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -63,7 +64,7 @@ function(write_build_env_file)
 
   # Create source.sh with all needed env var to run pytest outside of CTest
   ## strings inside pytest_source.sh.in to be replaced
-  message("Creating source file at : ${PROJECT_BINARY_DIR}/source.sh")
+  message("Creating sourcing file at : ${PROJECT_BINARY_DIR}/source.sh")
   set(PYTEST_ENV_PREPEND_LD_LIBRARY_PATH ${ld_library_path})
   set(PYTEST_ENV_PREPEND_PYTHONPATH      ${pythonpath})
   set(PYTEST_ENV_PREPEND_PATH            ${path})
