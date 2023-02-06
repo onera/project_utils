@@ -16,12 +16,16 @@ macro(configure_compilers target compilation_file_pattern)
   # ----------------------------------------------------------------------
   
   # ----------------------------------------------------------------------
+  # Debug vectorisation gcc : -ftree-vectorizer-verbose=6 -fopt-info -fopt-info-all
+  # Utile aussi :  -fopt-info-vec-missed
   ### Fortran includes
   set(CMAKE_Fortran_PREPROCESS ON)
   # Fortran mandatory flags
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DE_DOUBLEREAL -ffixed-line-length-none -fno-second-underscore -std=gnu -fdefault-real-8 -fdefault-double-8")
   elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DE_DOUBLEREAL -r8 -132")
+  elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DE_DOUBLEREAL -r8 -132")
   endif()
   # Define installation directory form
