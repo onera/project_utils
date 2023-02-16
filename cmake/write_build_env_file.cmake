@@ -63,7 +63,7 @@ function(write_build_env_file)
   populate_build_env_paths(ld_library_path pythonpath path)
 
   # Create source.sh with all needed env var to run pytest outside of CTest
-  ## strings inside pytest_source.sh.in to be replaced
+  ## strings inside source.sh.in to be replaced
   message("Creating sourcing file at : ${PROJECT_BINARY_DIR}/source.sh")
   set(PYTEST_ENV_PREPEND_LD_LIBRARY_PATH ${ld_library_path})
   set(PYTEST_ENV_PREPEND_PYTHONPATH      ${pythonpath})
@@ -73,7 +73,7 @@ function(write_build_env_file)
   set(PYTEST_PLUGINS                     ${pytest_plugins})
   string(TOUPPER ${PROJECT_NAME}         PROJECT_NAME_UPPER)
   configure_file(
-    ${PROJECT_UTILS_CMAKE_DIR}/pytest_source.sh.in
+    ${PROJECT_UTILS_CMAKE_DIR}/source.sh.in
     ${PROJECT_BINARY_DIR}/source.sh
     @ONLY
   )
