@@ -71,6 +71,7 @@ function(write_build_env_file)
   set(PYTEST_ENV_PYCACHE_ENV_VAR         ${pycache_env_var})
   set(PYTEST_ROOTDIR                     ${PROJECT_BINARY_DIR})
   set(PYTEST_PLUGINS                     ${pytest_plugins})
+  string(TOUPPER ${PROJECT_NAME}         PROJECT_NAME_UPPER)
   configure_file(
     ${PROJECT_UTILS_CMAKE_DIR}/pytest_source.sh.in
     ${PROJECT_BINARY_DIR}/source.sh
