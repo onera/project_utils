@@ -151,6 +151,18 @@ function(install_python_modules project_name)
     get_filename_component(py_dir_rel "${py_file_rel}" DIRECTORY)
     install(FILES       "${py_file_rel}"
             DESTINATION "${SITE_PACKAGES_OUTPUT_DIRECTORY}/${py_dir_rel}"
-            COMPONENT   "python")
+            COMPONENT   "Python files")
+  endforeach ()
+endfunction()
+function(install_mako_files project_name)
+  file(GLOB_RECURSE mako_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${project_name}/*.mako")
+
+  foreach (mako_file ${mako_files})
+    file(RELATIVE_PATH mako_file_rel  ${CMAKE_CURRENT_SOURCE_DIR} ${mako_file})
+
+    get_filename_component(mako_dir_rel "${mako_file_rel}" DIRECTORY)
+    install(FILES       "${mako_file_rel}"
+            DESTINATION "${SITE_PACKAGES_OUTPUT_DIRECTORY}/${mako_dir_rel}"
+            COMPONENT   "Mako files")
   endforeach ()
 endfunction()
