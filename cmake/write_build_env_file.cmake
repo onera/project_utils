@@ -52,7 +52,7 @@ function(write_build_env_file)
   set(serial_run false)
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
-    set(pycache_env_var "PYTHONPYCACHEPREFIX=${PROJECT_BINARY_DIR}")
+    set(pycache_env_var "PYTHONPYCACHEPREFIX=${PROJECT_BINARY_DIR}/.python_cache")
   else()
     set(pycache_env_var "PYTHONDONTWRITEBYTECODE=1")
   endif()

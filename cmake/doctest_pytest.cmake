@@ -34,7 +34,6 @@ function(create_doctest)
       NAME ${test_name}
       COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${n_proc}
               ${MPIEXEC_PREFLAGS}
-              #echo "toto"
               ${CMAKE_CURRENT_BINARY_DIR}/${test_name} ${doctest_args}
               ${MPIEXEC_POSTFLAGS}
     )
@@ -81,7 +80,7 @@ function(create_pytest)
 
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
-    set(pycache_env_var "PYTHONPYCACHEPREFIX=${PROJECT_BINARY_DIR}")
+    set(pycache_env_var "PYTHONPYCACHEPREFIX=${PROJECT_BINARY_DIR}/.python_cache")
   else()
     set(pycache_env_var "PYTHONDONTWRITEBYTECODE=1")
   endif()
