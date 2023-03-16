@@ -39,7 +39,9 @@ __git_config_submod_wd() {
 
       # If subsubmodule is shared with main project, create a git link
       if [ -d $main_repo_path/.git/modules/$submod_path ]; then
-        echo gitdir: $main_repo_path/.git/modules/$submod_path > $submod_path/.git
+        # if main repo A and sub module B depend on repo C,
+        # then when in A/external/B/external/C, we need to go back 4 times
+        echo gitdir: ../../../../.git/modules/$submod_path > $submod_path/.git
       # Otherwise, subsubmodule must be ckecked out by the submodule. If the subsubmodule is an
       # "external" (i.e. required) submodule, update is not allowed to fail. Otherwise, just ignore the
       # missing submodule.
