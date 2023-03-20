@@ -1,4 +1,18 @@
-set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages/")
+if (NOT DEFINED "Python3_VERSION_MAJOR" OR
+    NOT DEFINED "Python3_VERSION_MINOR")
+    find_package("Python3" QUIET COMPONENTS Development.Module)
+endif ()
+
+if (Python3_VERSION_MAJOR AND Python3_VERSION_MINOR)
+    set(_python_version_suffix "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+else ()
+    message(WARNING
+        "The version of Python is unknown; not using a versioned directory "
+        "for Python modules.")
+    set(_python_version_suffix)
+endif ()
+
+set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${_python_version_suffix}/site-packages/")
 
 
 # compile ${cpython_module_file} into a module of the same name, depending on ${target}, and install it
