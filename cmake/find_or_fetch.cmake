@@ -66,14 +66,14 @@ endfunction()
 
 function(find_or_fetch_doctest)
   option(${PROJECT_NAME}_ENABLE_FETCH_DOCTEST "Fetch doctest sources on-the-fly if not found by find_package()" ON)
-  find_package(doctest 2.4.9 CONFIG) # NOT project_find_package, because it is only a dependency of the test executable
+  find_package(doctest 2.4.11 CONFIG) # NOT project_find_package, because it is only a dependency of the test executable
   if (NOT doctest_FOUND)
     if (${PROJECT_NAME}_ENABLE_FETCH_DOCTEST)
       message("doctest was not found by find_package(). Fetching sources on-the-fly")
       FetchContent_Declare(
         doctest
         GIT_REPOSITORY https://github.com/doctest/doctest.git
-        GIT_TAG        v2.4.9
+        GIT_TAG        v2.4.11
       )
       FetchContent_MakeAvailable(doctest)
     else()
