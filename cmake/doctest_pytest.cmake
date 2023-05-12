@@ -85,7 +85,7 @@ function(create_pytest)
     set(pycache_env_var "PYTHONDONTWRITEBYTECODE=1")
   endif()
   if(NOT ${serial_run})
-    set(pytest_plugins "pytest_mpi_check.plugin")
+    set(pytest_plugins "pytest_parallel.plugin")
   endif()
 
   # -r : display a short test summary info, with a == all except passed (i.e. report failed, skipped, error)
