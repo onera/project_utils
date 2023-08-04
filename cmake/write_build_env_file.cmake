@@ -57,7 +57,7 @@ function(write_build_env_file)
     set(pycache_env_var "PYTHONDONTWRITEBYTECODE=1")
   endif()
   if(NOT ${serial_run})
-    set(pytest_plugins "pytest_mpi_check.plugin")
+    set(pytest_plugins "pytest_parallel.plugin")
   endif()
 
   populate_build_env_paths(ld_library_path pythonpath path)
