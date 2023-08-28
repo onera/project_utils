@@ -4,8 +4,10 @@ include(${PROJECT_UTILS_CMAKE_DIR}/dependency_management.cmake) # project_find_p
 
 function(find_or_fetch_pybind11)
   option(${PROJECT_NAME}_ENABLE_FETCH_PYBIND "Fetch Pybind11 sources on-the-fly if not found by find_package()" ON)
-  project_find_package(pybind11 2.8 CONFIG)
-  if (NOT pybind11_FOUND)
+  if (NOT TARGET pybind11::pybind11) # optim: do not execute `find_package(doctest)` if it has already been executed by another project
+    project_find_package(pybind11 2.8 CONFIG)
+  endif()
+  if (NOT TARGET pybind11::pybind11)
     if (${PROJECT_NAME}_ENABLE_FETCH_PYBIND)
       message("Pybind11 was not found by find_package(). Fetching sources on-the-fly")
       set(PYBIND11_INSTALL ON CACHE BOOL "${PROJECT_NAME} requires PyBind to export itself" FORCE)
@@ -25,8 +27,10 @@ endfunction()
 
 function(find_or_fetch_fmt)
   option(${PROJECT_NAME}_ENABLE_FETCH_FMT "Fetch fmt sources on-the-fly if not found by find_package()" ON)
-  project_find_package(fmt 6.2 CONFIG)
-  if (NOT fmt_FOUND)
+  if (NOT TARGET fmt::fmt) # optim: do not execute `find_package(doctest)` if it has already been executed by another project
+    project_find_package(fmt 6.2 CONFIG)
+  endif()
+  if (NOT TARGET fmt::fmt)
     if (${PROJECT_NAME}_ENABLE_FETCH_FMT)
       message("fmt was not found by find_package(). Fetching sources on-the-fly")
       set(FMT_INSTALL ON CACHE BOOL "${PROJECT_NAME} requires fmt to export itself" FORCE)
@@ -66,8 +70,10 @@ endfunction()
 
 function(find_or_fetch_doctest)
   option(${PROJECT_NAME}_ENABLE_FETCH_DOCTEST "Fetch doctest sources on-the-fly if not found by find_package()" ON)
-  find_package(doctest 2.4.11 CONFIG) # NOT project_find_package, because it is only a dependency of the test executable
-  if (NOT doctest_FOUND)
+  if (NOT TARGET doctest::doctest) # optim: do not execute `find_package(doctest)` if it has already been executed by another project
+    find_package(doctest 2.4.11 CONFIG) # NOT `project_find_package`, because it is only a dependency of the test executable
+  endif()
+  if (NOT TARGET doctest::doctest)
     if (${PROJECT_NAME}_ENABLE_FETCH_DOCTEST)
       message("doctest was not found by find_package(). Fetching sources on-the-fly")
       FetchContent_Declare(
