@@ -1,3 +1,4 @@
+include(${PROJECT_UTILS_CMAKE_DIR}/check_python_module.cmake)
 # ----------------------------------------------------------------------------------------------------------------------
 function(create_doctest)
   include(CTest)
