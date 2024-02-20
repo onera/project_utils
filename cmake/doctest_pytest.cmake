@@ -73,7 +73,7 @@ function(create_pytest)
   check_python_module(pytest REQUIRED)
   check_python_module(pytest_html)
   if(NOT ${serial_run})
-    check_local_dependency(pytest-mpi-check)
+    check_local_dependency(pytest_parallel)
   endif()
 
   # Call function in write_build_env_file.cmake to populate paths
