@@ -4,7 +4,7 @@ function(populate_build_env_paths ld_library_path_out pythonpath_out path_out)
   # Populate paths for tests and to produce source.sh file
   set(ld_library_path "${PROJECT_BINARY_DIR}")
   set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (wrapping) modules, source for regular .py files
-  set(path "${PROJECT_SOURCE_DIR}/scripts")
+  set(path "${PROJECT_SOURCE_DIR}/bin")
 
   ## PYTHONPATH from submodule dependencies
   file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${PROJECT_SOURCE_DIR}/external/" "${PROJECT_SOURCE_DIR}/external/*")
@@ -17,8 +17,8 @@ function(populate_build_env_paths ld_library_path_out pythonpath_out path_out)
       set(pythonpath "${PROJECT_BINARY_DIR}/external/${submod_dep}:${pythonpath}") # Python compiled modules
       set(pythonpath "${PROJECT_ROOT}/external/${submod_dep}:${pythonpath}") # .py files from the sources
     endif()
-    # PATH: Take what is in scripts/
-    set(path "${PROJECT_ROOT}/external/${submod_dep}/scripts:${path}")
+    # PATH: Take what is in bin/
+    set(path "${PROJECT_ROOT}/external/${submod_dep}/bin:${path}")
   endforeach()
 
   # Search for pythonpath in other external folders

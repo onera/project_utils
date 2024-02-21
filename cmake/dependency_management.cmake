@@ -85,13 +85,15 @@ macro(target_install target)
     message(FATAL_ERROR "PROJECT_UTILS_CMAKE_DIR is not defined")
   endif()
 
-  # Install binaries and includes
+  # Installation paths
   install(TARGETS ${target} EXPORT ${target}Targets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
   )
+
+  # Install headers
   install(DIRECTORY ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}
     DESTINATION include
     FILES_MATCHING
@@ -101,8 +103,17 @@ macro(target_install target)
       PATTERN "*.cxx" # Cassiopee/Nuga
       PATTERN "*.f90.in" # SoNICS
   )
+  # Install executable scripts
+  if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+    install(DIRECTORY   ${CMAKE_CURRENT_SOURCE_DIR}/bin
+            DESTINATION ${CMAKE_INSTALL_PREFIX}
+            FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                             GROUP_READ             GROUP_EXECUTE
+                             WORLD_READ             WORLD_EXECUTE)
+  endif()
 
-  # Install ${target}Config.cmake
+
+  # Install cmake package files (${target}Targets.cmake and ${target}Config.cmake)
   install(EXPORT ${target}Targets
     FILE ${target}Targets.cmake
     NAMESPACE ${target}::
