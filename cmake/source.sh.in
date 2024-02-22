@@ -3,16 +3,7 @@ export PYTHONPATH=@PYTEST_ENV_PREPEND_PYTHONPATH@:$PYTHONPATH
 export PATH=@PYTEST_ENV_PREPEND_PATH@:$PATH
 export @PYTEST_ENV_PYCACHE_ENV_VAR@
 export PYTEST_PLUGINS=@PYTEST_PLUGINS@
-export PROJECT_SOURCE_DIR=@PROJECT_SOURCE_DIR@ # TODO DEPRECATE
 export @PROJECT_NAME_UPPER@_SOURCE_DIR=@PROJECT_SOURCE_DIR@
 export @PROJECT_NAME_UPPER@_BINARY_DIR=@PROJECT_BINARY_DIR@
 
 export LOGGING_CONF_FILE=@PROJECT_BINARY_DIR@/logging.conf
-
-# Trick so that pytest is aliased to pytest with forced rootdir
-# The rootdir option tells pytest where to put the temporary files
-PYTEST_EXEC=$(which pytest)
-py_test() {
-  $PYTEST_EXEC --rootdir=@PYTEST_ROOTDIR@ "$@"
-}
-export -f py_test
