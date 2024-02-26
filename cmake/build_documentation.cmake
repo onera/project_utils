@@ -42,9 +42,9 @@ macro(build_sphinx_report)
                      COMMENT "Copying doc/ files (in particular .rst files) to ${REPORT_DIR}")
   add_custom_target(${PROJECT_NAME}_sphinx_doc ALL DEPENDS ${REPORT_DIR}/index.rst)
 
-  file(GLOB_RECURSE cases_files ${CMAKE_CURRENT_SOURCE_DIR}/cases/*)
+  file(GLOB_RECURSE cases_files ${CMAKE_CURRENT_SOURCE_DIR}/sonics_test_suite/cases/*) # TODO not sonics specific
   add_custom_command(OUTPUT ${REPORT_DIR}/cases/cases.rst
-                     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/cases ${REPORT_DIR}/cases/ # FIXME same problem
+                     COMMAND "${CMAKE_COMMAND}" -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/sonics_test_suite/cases ${REPORT_DIR}/cases/ # FIXME same problem
                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                      DEPENDS ${cases_files}
                      COMMENT "Copying cases/ files (in particular .rst files) to ${REPORT_DIR}")
