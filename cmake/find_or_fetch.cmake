@@ -14,7 +14,7 @@ function(find_or_fetch_pybind11)
       FetchContent_Declare(
         pybind11
         GIT_REPOSITORY https://github.com/pybind/pybind11.git
-        GIT_TAG        v2.8.1
+        GIT_TAG        v2.13.6
       )
       FetchContent_MakeAvailable(pybind11)
       project_add_dependency(pybind11)
