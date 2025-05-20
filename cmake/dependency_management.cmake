@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
+cmake_policy(SET CMP0144 NEW) # find_package also uses <PACKAGENAME>_ROOT variables into account
 
 # --------------------------------------------------------------------------------------------------
 # _append_to_target_dependency_list and _append_to_target_thirdparty_dependency_list
