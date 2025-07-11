@@ -1,0 +1,97 @@
+from pathlib import Path
+import os
+
+
+def is_empty_git_repo(repo):
+  children = list(repo.iterdir())
+  n_child  = len(children)
+  if n_child==0:
+    return 'empty'
+  elif n_child>1:
+    return 'filled'
+  else:
+    child = children[0]
+    if child.name=='.git' and child.is_file():
+      return '.gitted'
+    else:
+      return 'filled'
+
+
+def _get_repo_tree(root, repo_list):
+
+  if Path.exists(root/'external'):
+    for child in (root/'external').iterdir():
+      repo_list.append(child)
+      _get_repo_tree(child, repo_list)
+
+  return True
+
+
+def get_repo_tree(root):
+  repo_list = list()
+  _get_repo_tree(root, repo_list)
+
+  return repo_list
+
+
+def get_repo_tree_filling(repo_tree):
+
+  repo_filling = dict()
+  for repo in repo_list:
+    # print(f'{repo.name}:')
+    if repo.name not in repo_filling:
+      is_empty = is_empty_git_repo(repo)
+      repo_filling[repo.name] = [(repo, is_empty)]
+    else:
+      is_empty = is_empty_git_repo(repo)
+      repo_filling[repo.name].append((repo, is_empty))
+
+  return repo_filling
+
+
+def check_repo_filled_once(repo_filling):
+  msg = ''
+  indent = '    '
+  for repo_name, paths_info in repo_filling.items():
+    unfilled_paths = list()
+    filled_paths   = list()
+    for path, fill_status in paths_info:
+      if fill_status=="filled":
+        filled_paths.append(path)
+      else:
+        unfilled_paths.append(path)
+
+    if len(filled_paths)>1:
+      msg     += f"Error: repo \"{repo_name}\" is initialized more than once. You need to keep only one of the following locations initialized:\n"
+      str_path = '\n'.join([indent+str(path) for path in filled_paths])
+      msg     += f"{str_path}\n\n"
+    if len(filled_paths)==0:
+      if len(unfilled_paths)==1:
+        msg     += f"Error: repo \"{repo_name}\" is not initialized, You need to initialize it at the following location:\n"
+        str_path = indent+str(unfilled_paths[0])+'\n'
+        msg     += f"{str_path}\n"
+      else:
+        msg     += f"Error: repo \"{repo_name}\" is not initialized. You need to initialize it at one of the following locations:\n"
+        str_path = '\n'.join([indent+str(path) for path in unfilled_paths])
+        msg     += f"{str_path}\n\n"
+
+  return msg
+
+
+if __name__=="__main__":
+
+  import argparse
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--root', type=Path)
+  args = parser.parse_args()
+
+  repo_list    = get_repo_tree(args.root)
+  repo_filling = get_repo_tree_filling(repo_list)
+  msg          = check_repo_filled_once(repo_filling)
+
+  print(msg)
+
+  if msg=="":
+    exit(0)
+  else:
+    exit(1)
