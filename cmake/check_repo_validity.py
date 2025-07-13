@@ -49,7 +49,7 @@ def get_repo_tree_filling(repo_tree):
   return repo_filling
 
 
-def check_repo_filled_once(repo_filling):
+def check_repo_filled_once(repo_filling, optional_dependencies):
   msg = ''
   indent = '    '
   for repo_name, paths_info in repo_filling.items():
@@ -65,7 +65,7 @@ def check_repo_filled_once(repo_filling):
       msg     += f"Error: repo \"{repo_name}\" is initialized more than once. You need to keep only one of the following locations initialized:\n"
       str_path = '\n'.join([indent+str(path) for path in filled_paths])
       msg     += f"{str_path}\n\n"
-    if len(filled_paths)==0:
+    if repo_name not in optional_dependencies and len(filled_paths)==0:
       if len(unfilled_paths)==1:
         msg     += f"Error: repo \"{repo_name}\" is not initialized, You need to initialize it at the following location:\n"
         str_path = indent+str(unfilled_paths[0])+'\n'
@@ -82,12 +82,20 @@ if __name__=="__main__":
 
   import argparse
   parser = argparse.ArgumentParser()
-  parser.add_argument('--root', type=Path)
+  parser.add_argument('--root', type=Path, help='Root of the repo that should be checked')
+  parser.add_argument('--ignore-dependencies', type=str, help='Comma-separated list of dependencies that can be empty (because they are optional)')
   args = parser.parse_args()
+
+  optional_dependencies = args.ignore_dependencies.split(',')
+  optional_dependencies = [x.strip() for x in optional_dependencies if x.strip() != ""]
 
   repo_list    = get_repo_tree(args.root)
   repo_filling = get_repo_tree_filling(repo_list)
-  msg          = check_repo_filled_once(repo_filling)
+  #for repo_name, paths_info in repo_filling.items():
+  #  print(repo_name)
+  #  for path,fill_status in paths_info:
+  #    print(f'  {path}: {fill_status}')
+  msg          = check_repo_filled_once(repo_filling, optional_dependencies)
 
   print(msg)
 
