@@ -12,7 +12,7 @@ else ()
     set(_python_version_suffix)
 endif ()
 
-set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${_python_version_suffix}/site-packages/")
+set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${_python_version_suffix}/site-packages")
 
 
 # compile ${cpython_module_file} into a module of the same name, depending on ${target}, and install it
