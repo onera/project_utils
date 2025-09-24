@@ -30,9 +30,15 @@ endmacro()
 #   the idea is that we will be able to use this string
 #   when adding dependencies to the ${target}Config.cmake file further down the installation process
 macro(project_add_subdirectory dependency)
-  _append_to_target_dependency_list(${PROJECT_NAME} ${dependency})
-  if (NOT TARGET ${dependency}) # if not already included
-    add_subdirectory(${PROJECT_ROOT}/external/${dependency} ${CMAKE_BINARY_DIR}/external/${dependency})
+  get_property(local_dep_list GLOBAL PROPERTY global_dependency_list)
+  if (NOT "${local_dep_list}" MATCHES "${dependency}")
+    string(APPEND local_dep_list " ${dependency}")
+    set_property(GLOBAL PROPERTY global_dependency_list "${local_dep_list}")
+    _append_to_target_dependency_list(${PROJECT_NAME} ${dependency})
+    if (NOT TARGET ${dependency}) # if not already included
+      add_subdirectory(${PROJECT_ROOT}/external/${dependency} ${CMAKE_BINARY_DIR}/external/${dependency})
+      # add_subdirectory(${PROJECT_ROOT}/external/${dependency} EXCLUDE_FROM_ALL ${CMAKE_BINARY_DIR}/external/${dependency})
+    endif()
   endif()
 endmacro()
 
