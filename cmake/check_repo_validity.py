@@ -35,9 +35,8 @@ def get_repo_tree(root):
 
 
 def get_repo_tree_filling(repo_tree):
-
   repo_filling = dict()
-  for repo in repo_list:
+  for repo in repo_tree:
     # print(f'{repo.name}:')
     if repo.name not in repo_filling:
       is_empty = is_empty_git_repo(repo)
@@ -77,25 +76,62 @@ def check_repo_filled_once(repo_filling, optional_dependencies):
 
   return msg
 
+def filter_dependencies(repo_list, repo_root_list):
+  repo_cur_names = {path.name for path in repo_list}
+  # print(repo_cur_names)
+  common_repos = []
+  for repo_path in repo_root_list:
+    repo_name = repo_path.name
+    if repo_name in repo_cur_names:
+      common_repos.append(repo_path)
+  return common_repos
 
 if __name__=="__main__":
 
   import argparse
   parser = argparse.ArgumentParser()
-  parser.add_argument('--root', type=Path, help='Root of the repo that should be checked')
-  parser.add_argument('--ignore-dependencies', type=str, help='Comma-separated list of dependencies that can be empty (because they are optional)')
+  parser.add_argument('--root'               , type=Path, help='Root of the repo that should be checked')
+  parser.add_argument('--current'            , type=Path, help='Current repo that should be checked')
+  parser.add_argument('--ignore-dependencies', type=str , help='Comma-separated list of dependencies that can be empty (because they are optional)')
   args = parser.parse_args()
+
+  verbose = False
 
   optional_dependencies = args.ignore_dependencies.split(',')
   optional_dependencies = [x.strip() for x in optional_dependencies if x.strip() != ""]
 
-  repo_list    = get_repo_tree(args.root)
-  repo_filling = get_repo_tree_filling(repo_list)
-  #for repo_name, paths_info in repo_filling.items():
-  #  print(repo_name)
-  #  for path,fill_status in paths_info:
-  #    print(f'  {path}: {fill_status}')
-  msg          = check_repo_filled_once(repo_filling, optional_dependencies)
+  repo_list      = get_repo_tree(args.current)
+  repo_root_list = get_repo_tree(args.root)
+
+  if verbose:
+    print("root    : ", args.root   )
+    print("current : ", args.current)
+    print("repo_list")
+    for rep in repo_list:
+      print(rep)
+
+    print("repo_root_list")
+    for rep in repo_root_list:
+      print(rep)
+
+  common_repos = filter_dependencies(repo_list, repo_root_list)
+
+  if verbose:
+    print("common_repos : ")
+    for common in common_repos:
+      print(common)
+
+  # ---
+  repo_filling   = get_repo_tree_filling(common_repos)
+
+  if verbose:
+    for repo_name, paths_info in repo_filling.items():
+     print(repo_name)
+     for path,fill_status in paths_info:
+       print(f'  {path}: {fill_status}')
+
+  # > Principal fonction
+  msg = check_repo_filled_once(repo_filling, optional_dependencies)
 
   print(msg)
 
