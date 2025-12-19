@@ -1,0 +1,23 @@
+echo "Sourcing @PROJECT_NAME@ @GIT_VERSION@ (commit @GIT_HASH@)"
+
+@SOURCE_SOCLE@
+
+export SONICS_INSTALL_ROOT=@CMAKE_INSTALL_PREFIX@
+
+PY_MAJOR=$(python3 -c 'import sys; print(sys.version_info.major)')
+PY_MINOR=$(python3 -c 'import sys; print(sys.version_info.minor)')
+PY_VERSION=${PY_MAJOR}.${PY_MINOR}
+
+
+export PATH=$SONICS_INSTALL_ROOT/bin:$PATH
+export LD_LIBRARY_PATH=$SONICS_INSTALL_ROOT/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$SONICS_INSTALL_ROOT/lib/python${PY_VERSION}/site-packages:$LD_LIBRARY_PATH
+export PYTHONPATH=$SONICS_INSTALL_ROOT/lib/python${PY_VERSION}/site-packages:$PYTHONPATH
+
+
+export PYTEST_PLUGINS=pytest_parallel.plugin
+export SONICS_TEST_CASES=$SONICS_INSTALL_ROOT/lib/python${PY_VERSION}/site-packages/sonics_test_suite/cases
+
+export CFD_COMMON_MESHES_DIR=$SONICS_INSTALL_ROOT/data/cfd_common_meshes
+export THERMOCHEMISTRY_DIR=$SONICS_INSTALL_ROOT/data/thermochemistry
+export SONICS_REF_RESULTS_DIR=$SONICS_INSTALL_ROOT/data/sonics_ref_results
