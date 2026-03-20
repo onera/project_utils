@@ -18,6 +18,6 @@ export PYTHONPATH=$SONICS_INSTALL_ROOT/lib/python${PY_VERSION}/site-packages:$PY
 export PYTEST_PLUGINS=pytest_parallel.plugin,validation_tools.pytest.plugin
 export SONICS_TEST_CASES=$SONICS_INSTALL_ROOT/lib/python${PY_VERSION}/site-packages/sonics_test_suite/cases
 
+export THERMOCHEMISTRY_DIR=$SONICS_INSTALL_ROOT/share
 export CFD_COMMON_MESHES_DIR=$SONICS_INSTALL_ROOT/data/cfd_common_meshes
-export THERMOCHEMISTRY_DIR=$SONICS_INSTALL_ROOT/data/thermochemistry
 export SONICS_REF_RESULTS_DIR=$SONICS_INSTALL_ROOT/data/sonics_ref_results
