@@ -15,7 +15,7 @@ export LD_LIBRARY_PATH=$SONICS_INSTALL_ROOT/lib/python${PY_VERSION}/site-package
 export PYTHONPATH=$SONICS_INSTALL_ROOT/lib/python${PY_VERSION}/site-packages:$PYTHONPATH
 
 
-export PYTEST_PLUGINS=pytest_parallel.plugin
+export PYTEST_PLUGINS=pytest_parallel.plugin,validation_tools.pytest.plugin
 export SONICS_TEST_CASES=$SONICS_INSTALL_ROOT/lib/python${PY_VERSION}/site-packages/sonics_test_suite/cases
 
 export CFD_COMMON_MESHES_DIR=$SONICS_INSTALL_ROOT/data/cfd_common_meshes
