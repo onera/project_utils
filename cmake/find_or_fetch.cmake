@@ -38,6 +38,7 @@ function(find_or_fetch_fmt)
         fmt
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
         GIT_TAG        11.1.3
+        SYSTEM
       )
       FetchContent_MakeAvailable(fmt)
       project_add_dependency(fmt)
