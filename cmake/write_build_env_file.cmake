@@ -1,10 +1,11 @@
 # ----------------------------------------------------------------------------------------------------------------------
-function(populate_build_env_paths ld_library_path_out pythonpath_out path_out)
+function(populate_build_env_paths ld_library_path_out pythonpath_out path_out submod_src_folder_envvars_out)
 
   # Populate paths for tests and to produce source.sh file
   set(ld_library_path "${PROJECT_BINARY_DIR}")
   set(pythonpath "${PROJECT_BINARY_DIR}:${PROJECT_SOURCE_DIR}") # binary for compiled (wrapping) modules, source for regular .py files
   set(path "${PROJECT_SOURCE_DIR}/bin")
+  set(submod_src_folder_envvars "")
 
   ## PYTHONPATH from submodule dependencies
   file(GLOB submod_dependencies LIST_DIRECTORIES true RELATIVE "${PROJECT_SOURCE_DIR}/external/" "${PROJECT_SOURCE_DIR}/external/*")
@@ -19,6 +20,9 @@ function(populate_build_env_paths ld_library_path_out pythonpath_out path_out)
     endif()
     # PATH: Take what is in bin/
     set(path "${PROJECT_ROOT}/external/${submod_dep}/bin:${path}")
+
+    string(TOUPPER ${submod_dep} submod_name_upper)
+    set(submod_src_folder_envvars "${submod_src_folder_envvars}\nexport ${submod_name_upper}_SOURCE_DIR=${PROJECT_ROOT}/external/${submod_dep}")
   endforeach()
 
   # Search for pythonpath in other external folders
@@ -43,6 +47,7 @@ function(populate_build_env_paths ld_library_path_out pythonpath_out path_out)
   set(${pythonpath_out} "${pythonpath}" PARENT_SCOPE)
   set(${ld_library_path_out} "${ld_library_path}" PARENT_SCOPE)
   set(${path_out} "${path}" PARENT_SCOPE)
+  set(${submod_src_folder_envvars_out} "${submod_src_folder_envvars}" PARENT_SCOPE)
 endfunction()
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -60,18 +65,19 @@ function(write_build_env_file)
     set(pytest_plugins "pytest_parallel.plugin")
   endif()
 
-  populate_build_env_paths(ld_library_path pythonpath path)
+  populate_build_env_paths(ld_library_path pythonpath path submod_src_folder_envvars)
 
   # Create source.sh with all needed env var to run pytest outside of CTest
   ## strings inside source.sh.in to be replaced
   message("Creating sourcing file at : ${PROJECT_BINARY_DIR}/source.sh")
-  set(PYTEST_ENV_PREPEND_LD_LIBRARY_PATH ${ld_library_path})
-  set(PYTEST_ENV_PREPEND_PYTHONPATH      ${pythonpath})
-  set(PYTEST_ENV_PREPEND_PATH            ${path})
-  set(PYTEST_ENV_PYCACHE_ENV_VAR         ${pycache_env_var})
-  set(PYTEST_ROOTDIR                     ${PROJECT_BINARY_DIR})
-  set(PYTEST_PLUGINS                     ${pytest_plugins})
-  string(TOUPPER ${PROJECT_NAME}         PROJECT_NAME_UPPER)
+  set(PREPEND_LD_LIBRARY_PATH    ${ld_library_path})
+  set(PREPEND_PYTHONPATH         ${pythonpath})
+  set(PREPEND_PATH               ${path})
+  set(SUBMOD_SRC_FOLDER_ENVVARS  ${submod_src_folder_envvars})
+  set(PYTEST_ENV_PYCACHE_ENV_VAR ${pycache_env_var})
+  set(PYTEST_ROOTDIR             ${PROJECT_BINARY_DIR})
+  set(PYTEST_PLUGINS             ${pytest_plugins})
+  string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
   configure_file(
     ${PROJECT_UTILS_CMAKE_DIR}/source.sh.in
     ${PROJECT_BINARY_DIR}/source.sh
