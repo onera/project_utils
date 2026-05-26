@@ -180,3 +180,15 @@ function(install_mako_files project_name)
             COMPONENT   "Mako files")
   endforeach ()
 endfunction()
+function(install_yaml_files project_name)
+  file(GLOB_RECURSE yaml_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${project_name}/*.yaml")
+
+  foreach (yaml_file ${yaml_files})
+    file(RELATIVE_PATH yaml_file_rel  ${CMAKE_CURRENT_SOURCE_DIR} ${yaml_file})
+
+    get_filename_component(yaml_dir_rel "${yaml_file_rel}" DIRECTORY)
+    install(FILES       "${yaml_file_rel}"
+            DESTINATION "${SITE_PACKAGES_OUTPUT_DIRECTORY}/${yaml_dir_rel}"
+            COMPONENT   "YAML files")
+  endforeach ()
+endfunction()
