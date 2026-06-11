@@ -1,3 +1,4 @@
+include(${PROJECT_UTILS_CMAKE_DIR}/check_local_dependency.cmake)
 # --------------------------------------------------------------------------------------------------
 # _append_to_target_dependency_list and _append_to_target_thirdparty_dependency_list
 # --------------------------------------------------------------------------------------------------
@@ -23,22 +24,30 @@ endmacro()
 
 
 # --------------------------------------------------------------------------------------------------
-# project_add_subdirectory
+# project_add_subdirectory_priv
 # --------------------------------------------------------------------------------------------------
-# add the subdirectory ${dependency} located in ${project_root}/external/
+# add the subdirectory ${dependency} located either at ${project_root}/${dependency_location}
 # the string ${target}_DEPENDENCIES_FIND_PACKAGE_STRING is appended the corresponding find_package() command
 #   the idea is that we will be able to use this string
 #   when adding dependencies to the ${target}Config.cmake file further down the installation process
-macro(project_add_subdirectory dependency)
-  get_property(local_dep_list GLOBAL PROPERTY global_dependency_list)
-  if (NOT "${local_dep_list}" MATCHES "${dependency}")
-    string(APPEND local_dep_list " ${dependency}")
-    set_property(GLOBAL PROPERTY global_dependency_list "${local_dep_list}")
+function(project_add_subdirectory_priv dependency dependency_location)
+  get_property(dependency_list          GLOBAL PROPERTY global_dependency_list)
+  if (NOT "${dependency_list}" MATCHES "${dependency}") # if the dependency has not been added by any CMakeLists.txt
+    set_property(GLOBAL PROPERTY global_dependency_list          ${dependency} APPEND)
+    set_property(GLOBAL PROPERTY global_dependency_location_list ${dependency_location} APPEND)
     _append_to_target_dependency_list(${PROJECT_NAME} ${dependency})
     if (NOT TARGET ${dependency}) # if not already included
-      add_subdirectory(${PROJECT_ROOT}/external/${dependency} ${CMAKE_BINARY_DIR}/external/${dependency})
-      # add_subdirectory(${PROJECT_ROOT}/external/${dependency} EXCLUDE_FROM_ALL ${CMAKE_BINARY_DIR}/external/${dependency})
+      add_subdirectory(${PROJECT_ROOT}/${dependency_location} ${CMAKE_BINARY_DIR}/${dependency_location})
     endif()
+  endif()
+endfunction()
+
+macro(project_add_subdirectory dependency)
+  find_dependency_location(${dependency} dependency_location error_msg)
+  if (error_msg STREQUAL "")
+    project_add_subdirectory_priv(${dependency} ${dependency_location})
+  else()
+    message(FATAL_ERROR "${error_msg}")
   endif()
 endmacro()
 
@@ -53,26 +62,32 @@ macro(project_find_package)
 endmacro()
 
 # --------------------------------------------------------------------------------------------------
-# project_add_dependency
+# project_register_dependency
 # --------------------------------------------------------------------------------------------------
-macro(project_add_dependency dependency)
+macro(project_register_dependency dependency)
   _append_to_target_dependency_list(${PROJECT_NAME} ${dependency})
 endmacro()
 
 
 # --------------------------------------------------------------------------------------------------
-# project_add_subdir_or_package
+# project_add_dependency
 # --------------------------------------------------------------------------------------------------
 # try to add a dependency by project_add_subdirectory
 # if the dependency is not present as a subdirectory, add it with project_find_package
-macro(project_add_subdir_or_package dependency)
-  include(${PROJECT_UTILS_CMAKE_DIR}/check_local_dependency.cmake)
-  check_local_dependency(${dependency})
-  if (${dependency}_FOUND)
-    project_add_subdirectory(${dependency})
+function(project_add_dependency dependency)
+  find_dependency_location(${dependency} dependency_location error_msg)
+  if (error_msg STREQUAL "")
+    project_add_subdirectory_priv(${dependency} ${dependency_location})
   else()
-    project_find_package(${dependency} CONFIG ${ARGN})
+    project_find_package(${dependency} CONFIG)
+    if (NOT ${dependency}_FOUND)
+      message(FATAL_ERROR "${error_msg}")
+    endif()
   endif()
+endfunction()
+
+macro(project_add_subdir_or_package dependency_location) # TODO old name: deprecate
+  project_add_dependency(${dependency_location})
 endmacro()
 
 

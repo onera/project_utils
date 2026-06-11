@@ -1,5 +1,5 @@
 include(FetchContent)
-include(${PROJECT_UTILS_CMAKE_DIR}/dependency_management.cmake) # project_find_package, project_add_dependency
+include(${PROJECT_UTILS_CMAKE_DIR}/dependency_management.cmake) # project_find_package, project_register_dependency
 
 
 function(find_or_fetch_pybind11)
@@ -17,7 +17,7 @@ function(find_or_fetch_pybind11)
         GIT_TAG        v2.13.6
       )
       FetchContent_MakeAvailable(pybind11)
-      project_add_dependency(pybind11)
+      project_register_dependency(pybind11)
     else()
       message(FATAL_ERROR "Pybind11 was not found by find_package() and ${PROJECT_NAME}_ENABLE_FETCH_PYBIND is OFF")
     endif()
@@ -41,7 +41,7 @@ function(find_or_fetch_fmt)
         SYSTEM
       )
       FetchContent_MakeAvailable(fmt)
-      project_add_dependency(fmt)
+      project_register_dependency(fmt)
     else()
       message(FATAL_ERROR "fmt was not found by find_package() and ${PROJECT_NAME}_ENABLE_FETCH_FMT is OFF")
     endif()
@@ -61,7 +61,7 @@ function(find_or_fetch_robin_map)
         GIT_TAG        v1.0.1 # as of 2023/03, v1.2.1 is not working with CMake+FetchContent
       )
       FetchContent_MakeAvailable(robin-map)
-      project_add_dependency(robin-map)
+      project_register_dependency(robin-map)
     else()
       message(FATAL_ERROR "robin-map was not found by find_package() and ${PROJECT_NAME}_ENABLE_FETCH_ROBIN_MAP is OFF")
     endif()
