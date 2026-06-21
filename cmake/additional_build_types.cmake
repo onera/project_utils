@@ -39,3 +39,21 @@ mark_as_advanced (CMAKE_CXX_FLAGS_PROFILING CMAKE_CXX_FLAGS_SANITIZE)
 set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
     "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Profiling Sanitize."
     FORCE)
+
+
+function(enable_sanitizers)
+  # 1. Check compiler compatibility
+  if(NOT (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"))
+    message(WARNING "Only GCC and Clang are supported for sanitizers")
+    return()
+  endif()
+
+  # 2. Flags definition
+  set(SAN_FLAGS "-fsanitize=address,undefined" "-fno-omit-frame-pointer")
+
+  # 3. Apply for compile flags & linking
+  add_compile_options(${SAN_FLAGS})
+  add_link_options(${SAN_FLAGS})
+
+  message(STATUS " Sanitizers (Address, Undefined) activated ")
+endfunction()
