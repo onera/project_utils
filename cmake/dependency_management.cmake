@@ -11,16 +11,16 @@ include(${PROJECT_UTILS_CMAKE_DIR}/check_local_dependency.cmake)
 #         ${target}_DEPENDENCIES_STRING
 #       and _append_to_target_thirdparty_dependency_list appends to
 #         ${target}_THIRDPARTY_DEPENDENCIES_STRING
-macro(_append_to_target_dependency_list target)
+function(_append_to_target_dependency_list target)
   set(dependency ${ARGN})
   list(APPEND ${target}_DEPENDENCIES_FIND_PACKAGE_STRING "find_package(${dependency})\n")
   list(APPEND ${target}_DEPENDENCIES_STRING "\"${dependency}\",")
-endmacro()
-macro(_append_to_target_thirdparty_dependency_list target)
+endfunction()
+function(_append_to_target_thirdparty_dependency_list target)
   set(dependency ${ARGN})
   list(APPEND ${target}_DEPENDENCIES_FIND_PACKAGE_STRING "find_package(${dependency})\n")
   list(APPEND ${target}_THIRDPARTY_DEPENDENCIES_STRING "\"${dependency}\",")
-endmacro()
+endfunction()
 
 
 # --------------------------------------------------------------------------------------------------
@@ -30,32 +30,48 @@ endmacro()
 # the string ${target}_DEPENDENCIES_FIND_PACKAGE_STRING is appended the corresponding find_package() command
 #   the idea is that we will be able to use this string
 #   when adding dependencies to the ${target}Config.cmake file further down the installation process
-function(project_add_subdirectory_priv dependency dependency_location)
+function(project_add_subdirectory_priv)
+  list(LENGTH ARGN arg_count)
+  if(arg_count LESS 2)
+    message(FATAL_ERROR "project_add_dependency_priv: dependency dependency_location args are required")
+  endif()
+  if(arg_count GREATER 3)
+    message(FATAL_ERROR "project_add_dependency_priv: too many args")
+  endif()
+  list(GET ARGN 0 dependency)
+  list(GET ARGN 1 dependency_location)
+  if(arg_count EQUAL 2)
+    set(subfolder "")
+  else()
+    list(GET ARGN 2 subfolder)
+  endif()
+
   get_property(dependency_list          GLOBAL PROPERTY global_dependency_list)
   if (NOT "${dependency_list}" MATCHES "${dependency}") # if the dependency has not been added by any CMakeLists.txt
     set_property(GLOBAL PROPERTY global_dependency_list          ${dependency} APPEND)
     set_property(GLOBAL PROPERTY global_dependency_location_list ${dependency_location} APPEND)
     _append_to_target_dependency_list(${PROJECT_NAME} ${dependency})
     if (NOT TARGET ${dependency}) # if not already included
-      add_subdirectory(${PROJECT_ROOT}/${dependency_location} ${CMAKE_BINARY_DIR}/${dependency_location})
+      add_subdirectory(${PROJECT_ROOT}/${dependency_location}/${subfolder} ${CMAKE_BINARY_DIR}/${dependency_location}/${subfolder})
     endif()
   endif()
 endfunction()
 
-macro(project_add_subdirectory dependency)
+function(project_add_subdirectory dependency)
   find_dependency_location(${dependency} dependency_location error_msg)
   if (error_msg STREQUAL "")
-    project_add_subdirectory_priv(${dependency} ${dependency_location})
+    project_add_subdirectory_priv(${dependency} ${dependency_location} "")
   else()
     message(FATAL_ERROR "${error_msg}")
   endif()
-endmacro()
+endfunction()
 
 
 # --------------------------------------------------------------------------------------------------
 # project_find_package
 # --------------------------------------------------------------------------------------------------
 # same as project_add_subdirectory except we call find_package instead of add_directory
+# Note: should stay a macro since we use ARGV
 macro(project_find_package)
   _append_to_target_thirdparty_dependency_list(${PROJECT_NAME} ${ARGV})
   find_package(${ARGV})
@@ -74,21 +90,48 @@ endmacro()
 # --------------------------------------------------------------------------------------------------
 # try to add a dependency by project_add_subdirectory
 # if the dependency is not present as a subdirectory, add it with project_find_package
-function(project_add_dependency dependency)
+function(project_add_dependency)
+  list(LENGTH ARGN arg_count)
+
+  if(arg_count LESS 1)
+    message(FATAL_ERROR "project_add_dependency: dependency name is required")
+  endif()
+
+  list(GET ARGN 0 dependency)
+  set(required FALSE)
+  set(subfolder "")
+
+  if(arg_count GREATER 1)
+    list(GET ARGN 1 arg1)
+    if(arg1 STREQUAL "REQUIRED")
+      set(required TRUE)
+      if(arg_count GREATER 2)
+        list(GET ARGN 2 arg2)
+        if(arg2 STREQUAL "SUBFOLDER")
+          list(GET ARGN 3 subfolder)
+        endif()
+      endif()
+    elseif(arg1 STREQUAL "SUBFOLDER")
+      if(arg_count GREATER 2)
+        list(GET ARGN 2 subfolder)
+      endif()
+    endif()
+  endif()
+
   find_dependency_location(${dependency} dependency_location error_msg)
   if (error_msg STREQUAL "")
-    project_add_subdirectory_priv(${dependency} ${dependency_location})
+    project_add_subdirectory_priv(${dependency} ${dependency_location} ${subfolder})
   else()
     project_find_package(${dependency} CONFIG)
-    if (NOT ${dependency}_FOUND)
+    if (NOT ${${dependency}_FOUND})
       message(FATAL_ERROR "${error_msg}")
     endif()
   endif()
 endfunction()
 
-macro(project_add_subdir_or_package dependency_location) # TODO old name: deprecate
+function(project_add_subdir_or_package dependency_location) # TODO old name: deprecate
   project_add_dependency(${dependency_location})
-endmacro()
+endfunction()
 
 
 # --------------------------------------------------------------------------------------------------

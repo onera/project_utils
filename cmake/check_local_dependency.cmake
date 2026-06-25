@@ -24,7 +24,7 @@ function(find_dependency_location dependency dependency_path_out error_out)
   # Error if no match
   list(LENGTH folder_list n_folder)
   if (n_folder EQUAL 0)
-    set(error_out "  Could not find folder for dependency '${dependency}'\n  (no match for pattern */${dependency}/.git in folder ${PROJECT_ROOT})" PARENT_SCOPE)
+    set(${error_out} "  Could not find folder for dependency '${dependency}'\n  (no match for pattern */${dependency}/.git in folder ${PROJECT_ROOT})" PARENT_SCOPE)
 
   else()
     # Check which folders are non-empty
