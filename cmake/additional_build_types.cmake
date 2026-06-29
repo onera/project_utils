@@ -57,3 +57,24 @@ function(enable_sanitizers)
 
   message(STATUS " Sanitizers (Address, Undefined) activated ")
 endfunction()
+
+
+function(target_add_safe_math_precision_flags TARGET_NAME)
+  if(NOT TARGET ${TARGET_NAME})
+    message(FATAL_ERROR "target_geometry_precision_flags: Unknown '${TARGET_NAME}'")
+  endif()
+
+  # Configuration pour Intel / IntelLLVM (icx / icpx)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "IntelLLVM" OR CMAKE_C_COMPILER_ID MATCHES "IntelLLVM")
+    target_compile_options(${TARGET_NAME} PRIVATE "-fp-model=strict")
+    message(STATUS "Safe math flags (IntelLLVM) apply to : ${TARGET_NAME}")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
+    target_compile_options(${TARGET_NAME} PRIVATE
+                           "-ffp-contract=off"
+                           "-frounding-math"
+                           "-fno-associative-math"
+                           "-fno-unsafe-math-optimizations"
+                           )
+    message(STATUS "Safe math flags (GCC) apply to : ${TARGET_NAME}")
+  endif()
+endfunction()
