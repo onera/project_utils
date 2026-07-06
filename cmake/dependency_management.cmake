@@ -1,3 +1,7 @@
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27.0")
+  cmake_policy(SET CMP0144 NEW) # force find_package to take <PACKAGENAME>_ROOT variables into account
+endif()
+
 include(${PROJECT_UTILS_CMAKE_DIR}/check_local_dependency.cmake)
 # --------------------------------------------------------------------------------------------------
 # _append_to_target_dependency_list and _append_to_target_thirdparty_dependency_list
