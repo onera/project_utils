@@ -40,6 +40,7 @@ function(populate_build_env_paths ld_library_path_out pythonpath_out path_out de
   ### Special case for ParaDiGM because of the different folder structure
   if (${PROJECT_NAME}_BUILD_EMBEDDED_PDM)
     set(pythonpath "${CMAKE_BINARY_DIR}/external/paradigm/Cython/:${pythonpath}")
+    set(pythonpath "${CMAKE_BINARY_DIR}/submodules/paradigm/Cython/:${pythonpath}")
   endif()
 
   set(${pythonpath_out} "${pythonpath}" PARENT_SCOPE)
