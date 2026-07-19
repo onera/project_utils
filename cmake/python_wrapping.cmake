@@ -12,7 +12,12 @@ else ()
     set(_python_version_suffix)
 endif ()
 
-set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${_python_version_suffix}/site-packages")
+option(PYTHON_FLAT_INSTALL "Install python files directly under CMAKE_INSTALL_PREFIX instead of CMAKE_INSTALL_PREFIX/lib/pythonX.Y/site-packages (needed when CMAKE_INSTALL_PREFIX is already a site-packages/platlib directory, e.g. when driven by scikit-build-core)" OFF)
+if (PYTHON_FLAT_INSTALL)
+  set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+else()
+  set(SITE_PACKAGES_OUTPUT_DIRECTORY "${CMAKE_INSTALL_PREFIX}/lib/python${_python_version_suffix}/site-packages")
+endif()
 
 
 # compile ${cpython_module_file} into a module of the same name, depending on ${target}, and install it
