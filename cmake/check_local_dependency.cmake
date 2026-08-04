@@ -13,9 +13,22 @@
 # If found, the relative path is returned in dependency_path_out
 # If not found, an error message is given in error_out
 function(find_dependency_location dependency dependency_path_out error_out)
-  # Find files
+  # Fast path: dependencies usually live in external/${dependency}
+  set(_candidate_dir "${PROJECT_ROOT}/external/${dependency}")
+  if (EXISTS "${_candidate_dir}/.git")
+    file(GLOB _candidate_files "${_candidate_dir}/*")
+    list(LENGTH _candidate_files _nf)
+    if (_nf GREATER 1) # If ==1, there is only file .git: still count as empty
+      set(${dependency_path_out} "external/${dependency}" PARENT_SCOPE)
+      set(${error_out} "" PARENT_SCOPE)
+      return()
+    endif()
+  endif()
+
+  # Fallback: search the whole tree, pruning expensive directories
+  # (.git, build, install) to avoid traversing thousands of irrelevant files
   execute_process(
-    COMMAND find . -path "*/${dependency}/.git"
+    COMMAND find . -path ./.git -prune -o -path ./build -prune -o -path ./install -prune -o -path "*/${dependency}/.git" -print
     OUTPUT_VARIABLE dot_git_files
     WORKING_DIRECTORY ${PROJECT_ROOT}
   )
