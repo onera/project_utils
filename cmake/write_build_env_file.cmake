@@ -53,15 +53,14 @@ endfunction()
 function(write_build_env_file)
 
   # write the source file with all the installation paths
-  set(serial_run false)
+  get_property(pytest_plugins GLOBAL PROPERTY PROJECT_UTILS_PYTEST_PLUGINS)
+  list(REMOVE_DUPLICATES pytest_plugins)
+  list(JOIN pytest_plugins "," pytest_plugins) 
   # Don't pollute the source with __pycache__
   if (${Python_VERSION} VERSION_GREATER_EQUAL 3.8)
     set(pycache_env_var "PYTHONPYCACHEPREFIX=${PROJECT_BINARY_DIR}/.python_cache")
   else()
     set(pycache_env_var "PYTHONDONTWRITEBYTECODE=1")
-  endif()
-  if(NOT ${serial_run})
-    set(pytest_plugins "pytest_parallel.plugin")
   endif()
 
   populate_build_env_paths(ld_library_path pythonpath path dependency_folder_envvars)
